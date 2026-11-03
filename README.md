@@ -136,7 +136,7 @@ pnpm changeset
 
 Selecione `patch`, `minor` ou `major` conforme o impacto da mudança e inclua o arquivo gerado em `.changeset/`. O workflow **Release** na branch `principal` reúne as alterações em um PR de versionamento. Depois da revisão e do merge desse PR, o workflow valida, publica no npm, cria a tag Git e registra a GitHub Release.
 
-A publicação automatizada usa npm Trusted Publishing (OIDC), sem token de publicação permanente. A configuração do pacote no npm deve apontar para o repositório `centralmacatuba/api-sdk` e para o workflow `release.yml`. O primeiro envio do pacote ao npm e a configuração inicial do Trusted Publisher precisam ser concluídos antes de a automação assumir as próximas versões.
+A publicação automatizada usa npm Trusted Publishing (OIDC), sem token de publicação permanente. A configuração do pacote no npm deve apontar para o repositório `centralmacatuba/api-sdk` e para o workflow `release.yml`. O workflow permanece desabilitado até a variável de repositório `NPM_RELEASE_ENABLED` receber o valor `true`. Primeiro publique manualmente a versão inicial do pacote no npm, configure o Trusted Publisher e, só então, habilite essa variável para as próximas versões.
 
 ## Licença
 
