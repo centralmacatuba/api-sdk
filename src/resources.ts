@@ -5,10 +5,12 @@ type Call<P extends PublicEndpoint> = (
   ...args: EndpointRequestArgs<P>
 ) => Promise<EndpointResponse<P>>;
 
+/** Binds a public endpoint to the client while preserving its inferred types. */
 function bind<P extends PublicEndpoint>(client: CentralMacatuba, path: P): Call<P> {
   return (...args) => client.request(path, ...args);
 }
 
+/** Creates the typed resource namespaces exposed by the SDK. */
 export function createResources(client: CentralMacatuba) {
   return {
     health: { verificar: bind(client, "/") },
