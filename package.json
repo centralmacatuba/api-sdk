@@ -46,7 +46,8 @@
     "build": "pnpm generate:types && tsup",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "test:integration": "vitest run test/integration.test.ts"
   },
   "devDependencies": {
     "@types/node": "^22.19.0",
