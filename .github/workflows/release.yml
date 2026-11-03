@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   release:
-    if: github.repository == 'centralmacatuba/api-sdk'
+    if: github.repository == 'centralmacatuba/api-sdk' && vars.NPM_RELEASE_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
