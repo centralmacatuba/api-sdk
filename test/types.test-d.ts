@@ -1,7 +1,6 @@
 import type { EndpointQuery, EndpointResponse } from "../src/types.js";
 
 type Assert<T extends true> = T;
-type IsAssignable<Actual, Expected> = Actual extends Expected ? true : false;
 
 const validJornalQuery: EndpointQuery<"/api/jornal/pesquisar"> = {
   q: "Macatuba",
@@ -23,13 +22,13 @@ const invalidJornalFilter: EndpointQuery<"/api/jornal/pesquisar"> = {
 void invalidJornalFilter;
 
 type CalendarResponse = EndpointResponse<"/api/calendario/verificar">;
-type CalendarHasEvents = Assert<
-  IsAssignable<CalendarResponse, { data: string; eventos: unknown[] } | unknown>
+type CalendarHasTypedFields = Assert<
+  CalendarResponse extends { data: string; eventos: unknown[] } ? true : false
 >;
 
 type CalendarGenerateResponse = EndpointResponse<"/api/calendario/gerar">;
 type CalendarGenerateSupportsBlob = Assert<
-  IsAssignable<Blob, CalendarGenerateResponse>
+  Blob extends CalendarGenerateResponse ? true : false
 >;
 
 export {};
