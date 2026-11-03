@@ -46,6 +46,9 @@ jobs:
       - name: Generate OpenAPI types
         run: pnpm generate:types
 
+      - name: Verify generated types are committed
+        run: git diff --exit-code -- src/generated/schema.d.ts
+
       - name: Typecheck
         run: pnpm typecheck
 
