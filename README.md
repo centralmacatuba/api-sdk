@@ -79,7 +79,7 @@ pnpm test
 pnpm build
 ```
 
-O contrato OpenAPI em `openapi/openapi.json` foi obtido de `centralmacatuba/api`, branch `docs/openapi`, arquivo `publica/openapi.json`.
+O contrato OpenAPI em `openapi/openapi.json` foi obtido em https://publica.api.centralmacatuba.qzz.io/openapi.json
 
 ## Licença
 
