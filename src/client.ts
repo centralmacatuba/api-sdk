@@ -45,6 +45,7 @@ export const PUBLIC_ENDPOINTS = [
 
 export type PublicEndpoint = (typeof PUBLIC_ENDPOINTS)[number];
 
+/** Serializes query values, preserving repeated keys and omitting nullish values. */
 function queryString(query?: object): string {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query ?? {})) {
@@ -58,6 +59,7 @@ function queryString(query?: object): string {
   return result ? `?${result}` : "";
 }
 
+/** Parses JSON responses and returns non-JSON payloads as blobs. */
 async function parseBody(response: Response): Promise<unknown> {
   if (response.status === 204 || response.status === 205) return undefined;
 
@@ -82,6 +84,7 @@ async function parseBody(response: Response): Promise<unknown> {
   return response.blob();
 }
 
+/** Validates and normalizes the HTTP(S) base URL used by the client. */
 function normalizeBaseUrl(value: string): string {
   let url: URL;
   try {
@@ -128,6 +131,7 @@ export class CentralMacatuba {
     }
   }
 
+  /** Sends a typed GET request to an allowlisted public endpoint. */
   async request<P extends PublicEndpoint>(
     endpoint: P,
     ...args: EndpointRequestArgs<P>
