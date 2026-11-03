@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { CentralMacatuba, CentralMacatubaError } from "../src/index.js";
+import { CentralMacatuba, CentralMacatubaError, CentralMacatubaSDK } from "../src/index.js";
 const json = (data: unknown, status=200) => new Response(JSON.stringify(data), {status,headers:{"content-type":"application/json"}});
 describe("CentralMacatuba",()=>{
+ it("exposes the gateway health check",async()=>{const f=vi.fn().mockResolvedValue(json({status:"ok"}));const api=new CentralMacatubaSDK({fetch:f});await expect(api.health.verificar()).resolves.toEqual({status:"ok"});expect(f.mock.calls[0][0]).toBe("https://publica.api.centralmacatuba.qzz.io/");});
  it("uses the official public API origin",()=>{const c=new CentralMacatuba({fetch:vi.fn()});expect(c.baseUrl).toBe("https://publica.api.centralmacatuba.qzz.io");});
  it("serializes query values and parses JSON",async()=>{const f=vi.fn().mockResolvedValue(json({total:1}));const c=new CentralMacatuba({fetch:f});await expect(c.request("/api/jornal/pesquisar",{q:"Macatuba",page:2})).resolves.toEqual({total:1});expect(f.mock.calls[0][0]).toContain("?q=Macatuba&page=2");});
  it("blocks paths outside the public allowlist",async()=>{const c=new CentralMacatuba({fetch:vi.fn()});await expect(c.request("/api/admin/users")).rejects.toBeInstanceOf(CentralMacatubaError);});
