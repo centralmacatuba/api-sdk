@@ -3,6 +3,7 @@ import type { CentralMacatubaOptions, QueryParams, RequestOptions } from "./type
 
 export const DEFAULT_BASE_URL = "https://publica.api.centralmacatuba.qzz.io";
 export const PUBLIC_ENDPOINTS = [
+  "/",
   "/api/avisos/verificar","/api/calendario/verificar","/api/calendario/gerar","/api/dominios/verificar",
   "/api/informacoes/pesquisar","/api/informacoes/verificar","/api/jornal/pesquisar","/api/jornal/verificar",
   "/api/links/pesquisar","/api/links/verificar","/api/mapa/pesquisar","/api/mapa/verificar",
@@ -46,7 +47,7 @@ export class CentralMacatuba {
     if (typeof this.fetchImplementation !== "function") throw new CentralMacatubaError("Este ambiente não disponibiliza Fetch API. Informe options.fetch.");
   }
   async request<T = unknown>(endpoint: PublicEndpoint | string, query?: QueryParams, options: RequestOptions = {}): Promise<T> {
-    if (!endpoint.startsWith("/api/") || endpoint.includes("..") || !(PUBLIC_ENDPOINTS as readonly string[]).includes(endpoint)) {
+    if ((endpoint !== "/" && !endpoint.startsWith("/api/")) || endpoint.includes("..") || !(PUBLIC_ENDPOINTS as readonly string[]).includes(endpoint)) {
       throw new CentralMacatubaError("Endpoint não permitido. Use somente rotas da allowlist pública.");
     }
     const url = `${this.baseUrl}${endpoint}${queryString(query)}`;
