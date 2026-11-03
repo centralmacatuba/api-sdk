@@ -1,8 +1,14 @@
 # @centralmacatuba/api
 
-SDK oficial em JavaScript e TypeScript para a **API pública da Central Macatuba**.
+SDK em JavaScript e TypeScript para consumir a **API pública da Central Macatuba**.
 
 > **Status:** desenvolvimento inicial (0.1.0). A interface pública poderá evoluir antes da primeira versão estável.
+
+## Projeto e autoria
+
+A Central Macatuba é um projeto independente desenvolvido por **Desenvolvedor EE (Dev EE)**. Não possui relação, vínculo institucional ou afiliação com a Prefeitura Municipal de Macatuba.
+
+Este SDK é mantido no âmbito desse projeto independente. O nome Central Macatuba identifica o projeto e seus serviços digitais, não uma iniciativa ou produto oficial da administração municipal.
 
 ## Instalação
 
@@ -42,7 +48,7 @@ const api = new CentralMacatubaSDK({
 });
 ```
 
-- URL padrão do gateway oficial da API pública.
+- URL padrão do gateway público da API.
 - Fetch API nativa, sem Axios ou dependências de runtime.
 - Node.js 18+ e navegadores com Fetch API.
 - Builds ESM e CommonJS e declarações TypeScript.
@@ -83,4 +89,4 @@ O contrato OpenAPI em `openapi/openapi.json` foi obtido em https://publica.api.c
 
 ## Licença
 
-MIT.
+MIT. Consulte o arquivo `LICENSE` para os termos e a titularidade dos direitos autorais.
