@@ -12,6 +12,8 @@ Este SDK é mantido no âmbito desse projeto independente. O nome Central Macatu
 
 ## Instalação
 
+> **Atenção:** o pacote ainda não está publicado no npm. Use o comando abaixo somente após a publicação da versão 0.1.0.
+
 ```bash
 pnpm add @centralmacatuba/api
 ```
