@@ -51,9 +51,12 @@ const api = new CentralMacatubaSDK({
 
 ## Recursos
 
-Namespaces: `avisos`, `calendario`, `dominios`, `informacoes`, `jornal`, `links`, `mapa`, `novidades`, `paginas`, `redicionador`, `servicos`, `sos` e `tempo`.
+O health check da raiz também está disponível em `api.health.verificar()`.
+
+Namespaces: `health`, `avisos`, `calendario`, `dominios`, `informacoes`, `jornal`, `links`, `mapa`, `novidades`, `paginas`, `redicionador`, `servicos`, `sos` e `tempo`.
 
 ```ts
+await api.health.verificar();
 await api.avisos.verificar();
 await api.calendario.gerar({ ano: 2026, formato: "pdf" });
 await api.servicos.streaming.live.verificar();
