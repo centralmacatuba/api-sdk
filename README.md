@@ -122,7 +122,7 @@ CM_API_INTEGRATION=1 pnpm test:integration
 
 Esse teste não é executado na suíte padrão para evitar que indisponibilidades externas tornem o CI instável. Os testes unitários e os testes de tipos não dependem da API em produção.
 
-O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública.
+O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública. Depois de alterar esse contrato, execute `pnpm generate:types` e revise/registre `src/generated/schema.d.ts`. Para sincronizar o arquivo diretamente pelo GitHub Actions, use o workflow manual **Sync OpenAPI types** na branch de trabalho; ele gera e envia somente esse arquivo.
 
 ## Licença
 
