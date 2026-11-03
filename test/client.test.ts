@@ -40,7 +40,7 @@ describe("CentralMacatuba", () => {
       enabled: false,
       page: 0,
       tags: ["a", "b", null],
-    });
+    } as never);
 
     const url = new URL(String(fetcher.mock.calls[0][0]));
     expect(url.searchParams.get("source")).toBe("estacao local");
