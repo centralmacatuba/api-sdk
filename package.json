@@ -1,0 +1,58 @@
+{
+  "name": "@centralmacatuba/api",
+  "version": "0.1.0",
+  "description": "SDK oficial em JavaScript e TypeScript para a API pública da Central Macatuba.",
+  "license": "MIT",
+  "author": "Central Macatuba",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/centralmacatuba/api-sdk.git"
+  },
+  "homepage": "https://github.com/centralmacatuba/api-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/centralmacatuba/api-sdk/issues"
+  },
+  "keywords": [
+    "central-macatuba",
+    "api",
+    "sdk",
+    "javascript",
+    "typescript"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@12.12.1",
+  "scripts": {
+    "generate:types": "openapi-typescript ./openapi/openapi.json -o ./src/generated/schema.d.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "pnpm generate:types && tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepack": "pnpm build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "openapi-typescript": "^7.10.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
