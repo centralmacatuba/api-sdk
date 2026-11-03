@@ -2,8 +2,6 @@ name: CI
 
 on:
   push:
-    branches:
-      - principal
   pull_request:
     branches:
       - principal
