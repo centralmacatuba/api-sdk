@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -46,7 +48,10 @@ jobs:
       - name: Generate OpenAPI types
         run: pnpm generate:types
 
-      - name: Verify generated types are committed
+      - name: Verify generated types are tracked
+        run: git ls-files --error-unmatch -- src/generated/schema.d.ts
+
+      - name: Verify generated types are unchanged
         run: git diff --exit-code -- src/generated/schema.d.ts
 
       - name: Typecheck
