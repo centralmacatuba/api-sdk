@@ -4,6 +4,7 @@ type Call<T = unknown> = (query?: QueryParams, options?: RequestOptions) => Prom
 const bind = (client: CentralMacatuba, path: string): Call => (query, options) => client.request(path, query, options);
 export function createResources(client: CentralMacatuba) {
   return {
+    health:{verificar:bind(client,"/")},
     avisos:{verificar:bind(client,"/api/avisos/verificar")},
     calendario:{verificar:bind(client,"/api/calendario/verificar"),gerar:bind(client,"/api/calendario/gerar")},
     dominios:{verificar:bind(client,"/api/dominios/verificar")},
