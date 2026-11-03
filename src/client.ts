@@ -184,7 +184,9 @@ export class CentralMacatuba {
         const message =
           typeof apiMessage === "string"
             ? apiMessage
-            : apiMessage?.mensagem ?? response.statusText;
+            : apiMessage && typeof apiMessage === "object"
+              ? apiMessage.mensagem ?? response.statusText
+              : response.statusText;
 
         throw new CentralMacatubaError(
           message || `A API respondeu com HTTP ${response.status}.`,
