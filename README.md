@@ -124,6 +124,20 @@ Esse teste não é executado na suíte padrão para evitar que indisponibilidade
 
 O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública. Depois de alterar esse contrato, execute `pnpm generate:types` e revise/registre `src/generated/schema.d.ts`. Para sincronizar o arquivo diretamente pelo GitHub Actions, use o workflow manual **Sync OpenAPI types** na branch de trabalho; ele gera e envia somente esse arquivo.
 
+## Releases
+
+As versões seguem [Semantic Versioning](https://semver.org/) e são gerenciadas pelo [Changesets](https://changesets.dev/).
+
+Antes de concluir um PR com mudanças que alterem o pacote, crie um changeset:
+
+```bash
+pnpm changeset
+```
+
+Selecione `patch`, `minor` ou `major` conforme o impacto da mudança e inclua o arquivo gerado em `.changeset/`. O workflow **Release** na branch `principal` reúne as alterações em um PR de versionamento. Depois da revisão e do merge desse PR, o workflow valida, publica no npm, cria a tag Git e registra a GitHub Release.
+
+A publicação automatizada usa npm Trusted Publishing (OIDC), sem token de publicação permanente. A configuração do pacote no npm deve apontar para o repositório `centralmacatuba/api-sdk` e para o workflow `release.yml`. O primeiro envio do pacote ao npm e a configuração inicial do Trusted Publisher precisam ser concluídos antes de a automação assumir as próximas versões.
+
 ## Licença
 
 MIT. Consulte o arquivo `LICENSE` para os termos e a titularidade dos direitos autorais.
