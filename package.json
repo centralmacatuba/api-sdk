@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "SDK em JavaScript e TypeScript para a API pública do projeto independente Central Macatuba.",
   "license": "MIT",
-  "author": "Desenvolvedor EE (Dev EE)",
+  "author": "Desenvolvedor EE <desenvolvedor.ee@desenvolvedoree.qzz.io> (https://desenvolvedoree.qzz.io)",
   "repository": {
     "type": "git",
     "url": "https://github.com/centralmacatuba/api-sdk.git"
@@ -14,6 +14,8 @@
   },
   "keywords": [
     "central-macatuba",
+    "centralmacatuba",
+    "macatuba",
     "api",
     "sdk",
     "javascript",
