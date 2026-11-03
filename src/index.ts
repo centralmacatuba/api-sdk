@@ -1,5 +1,6 @@
 export { CentralMacatuba, DEFAULT_BASE_URL, PUBLIC_ENDPOINTS } from "./client.js";
 export type { PublicEndpoint } from "./client.js";
+export type { paths } from "./generated/schema.js";
 export { CentralMacatubaError } from "./errors.js";
 export type { CentralMacatubaErrorOptions } from "./errors.js";
 export { createResources } from "./resources.js";
