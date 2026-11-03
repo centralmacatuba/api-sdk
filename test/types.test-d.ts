@@ -1,25 +1,21 @@
 import type { EndpointQuery, EndpointResponse } from "../src/types.js";
 
 type Assert<T extends true> = T;
+type Equal<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends
+  (<T>() => T extends B ? 1 : 2)
+    ? true
+    : false;
+type IsRequired<T, K extends keyof T> = {} extends Pick<T, K> ? false : true;
 
-const validJornalQuery: EndpointQuery<"/api/jornal/pesquisar"> = {
-  q: "Macatuba",
-  filtro: "titulo",
-};
-void validJornalQuery;
-
-// @ts-expect-error The required q parameter must be supplied.
-const missingRequiredSearchTerm: EndpointQuery<"/api/jornal/pesquisar"> = {
-  filtro: "titulo",
-};
-void missingRequiredSearchTerm;
-
-// @ts-expect-error The filter is restricted by the OpenAPI enum.
-const invalidJornalFilter: EndpointQuery<"/api/jornal/pesquisar"> = {
-  q: "Macatuba",
-  filtro: "not-a-filter",
-};
-void invalidJornalFilter;
+type JornalQuery = EndpointQuery<"/api/jornal/pesquisar">;
+type JornalSearchTermIsRequired = Assert<IsRequired<JornalQuery, "q">>;
+type JornalFilterIsRestricted = Assert<
+  Equal<
+    NonNullable<JornalQuery["filtro"]>,
+    "criador" | "titulo" | "subtitulo" | "conteudo" | "tudo"
+  >
+>;
 
 type CalendarResponse = EndpointResponse<"/api/calendario/verificar">;
 type CalendarHasTypedFields = Assert<
