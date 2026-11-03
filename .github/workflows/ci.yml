@@ -2,8 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["**"]
+    branches: ["principal"]
   pull_request:
+  #falta atualizar aqui para A CI ser executada em pull request para a branch "principal".
 
 permissions:
   contents: read
@@ -20,7 +21,7 @@ jobs:
         with:
           node-version: 22
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Generate OpenAPI types
         run: pnpm generate:types
       - name: Typecheck
