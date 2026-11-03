@@ -22,6 +22,7 @@ O pacote também poderá ser instalado por npm ou yarn. O desenvolvimento deste 
 
 ```js
 import { CentralMacatubaSDK } from "@centralmacatuba/api";
+
 const api = new CentralMacatubaSDK();
 const resultado = await api.jornal.pesquisar({ q: "Macatuba" });
 console.log(resultado);
@@ -29,12 +30,17 @@ console.log(resultado);
 
 ## TypeScript
 
+Os parâmetros e as respostas JSON são inferidos do contrato OpenAPI incluído no pacote. Os métodos também validam em tempo de compilação os parâmetros obrigatórios de cada endpoint.
+
 ```ts
 import { CentralMacatubaSDK } from "@centralmacatuba/api";
-import type { CalendarDayResponse } from "@centralmacatuba/api";
+
 const api = new CentralMacatubaSDK({ timeoutMs: 15_000 });
-const calendario = await api.calendario.verificar({ data: "2026-11-02" }) as CalendarDayResponse;
+const calendario = await api.calendario.verificar({ data: "2026-11-02" });
 console.log(calendario.eventos);
+
+const pesquisa = await api.jornal.pesquisar({ q: "Macatuba", filtro: "titulo" });
+console.log(pesquisa);
 ```
 
 ## Configuração
@@ -44,16 +50,33 @@ const api = new CentralMacatubaSDK({
   baseUrl: "https://publica.api.centralmacatuba.qzz.io",
   timeoutMs: 20_000,
   headers: { "X-App-Name": "meu-aplicativo" },
+  credentials: "same-origin",
   // fetch: customFetch,
 });
 ```
 
-- URL padrão do gateway público da API.
+- URL padrão do gateway oficial da API pública.
 - Fetch API nativa, sem Axios ou dependências de runtime.
 - Node.js 18+ e navegadores com Fetch API.
 - Builds ESM e CommonJS e declarações TypeScript.
-- Cada chamada aceita `{ signal, timeoutMs, headers }` como segundo argumento após a consulta.
-- JSON vira objeto; arquivos PDF/PNG são retornados como `Blob`.
+- Cada chamada aceita `{ signal, timeoutMs, headers, credentials }` como opções.
+- JSON é retornado como objeto tipado; arquivos PDF/PNG são retornados como `Blob`.
+- `timeoutMs: 0` desativa o timeout.
+
+## Cookies e SOS
+
+O endpoint SOS consulta o cookie `centralmacatuba_sos-permissao`. Em navegadores, o SDK não tenta ler nem definir esse cookie: ele deixa o navegador gerenciá-lo.
+
+Para uma chamada entre origens que precise enviar o cookie, configure `credentials: "include"` no cliente ou somente na chamada:
+
+```ts
+const api = new CentralMacatubaSDK({ credentials: "include" });
+const resultado = await api.sos.listarAlertas();
+```
+
+O gateway precisa encaminhar o cookie recebido ao endpoint e, para chamadas cross-origin, responder com CORS compatível com credenciais (origem explícita e `Access-Control-Allow-Credentials: true`). O cookie também precisa ter atributos compatíveis com o contexto, incluindo `SameSite=None; Secure` quando for realmente cross-site. O SDK não consegue contornar essas políticas do navegador.
+
+Em Node.js, Fetch não mantém automaticamente um cookie jar entre chamadas. Para sessões persistentes, forneça uma implementação `fetch` com gerenciamento de cookies adequado ao seu ambiente.
 
 ## Recursos
 
@@ -64,7 +87,10 @@ Namespaces: `health`, `avisos`, `calendario`, `dominios`, `informacoes`, `jornal
 ```ts
 await api.health.verificar();
 await api.avisos.verificar();
-await api.calendario.gerar({ ano: 2026, formato: "pdf" });
+const arquivo = await api.calendario.gerar({ ano: 2026, formato: "pdf" });
+if (arquivo instanceof Blob) {
+  console.log(arquivo.type);
+}
 await api.servicos.streaming.live.verificar();
 await api.sos.listarAlertas();
 ```
@@ -73,19 +99,22 @@ await api.sos.listarAlertas();
 
 O SDK atende exclusivamente à allowlist documentada da **API pública**. Não implementa autenticação interna, não contém chaves privadas e não permite chamar caminhos fora dos endpoints públicos conhecidos.
 
-O endpoint SOS pode depender de consentimento/cookie emitido pela própria API. Esse comportamento precisa ser confirmado no gateway antes de documentar suporte a sessões.
+A allowlist de rotas e os tipos TypeScript são derivados/validados contra `openapi/openapi.json`. Ao atualizar o contrato, execute `pnpm generate:types` e revise as mudanças nos tipos.
 
 ## Desenvolvimento
 
+Requisitos: Node.js 18 ou superior e pnpm 12.12.1.
+
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm generate:types
 pnpm typecheck
 pnpm test
 pnpm build
+pnpm pack --dry-run
 ```
 
-O contrato OpenAPI em `openapi/openapi.json` foi obtido em https://publica.api.centralmacatuba.qzz.io/openapi.json
+O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública.
 
 ## Licença
 
