@@ -114,6 +114,14 @@ pnpm build
 pnpm pack --dry-run
 ```
 
+Para executar o teste de integração opcional do health check contra o gateway real:
+
+```bash
+CM_API_INTEGRATION=1 pnpm test:integration
+```
+
+Esse teste não é executado na suíte padrão para evitar que indisponibilidades externas tornem o CI instável. Os testes unitários e os testes de tipos não dependem da API em produção.
+
 O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública.
 
 ## Licença
