@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - principal
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: release-${{ github.repository }}-principal
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'centralmacatuba/api-sdk'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.12.1
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Verify npm version for Trusted Publishing
+        run: |
+          node --version
+          npm --version
+          node -e "const [major, minor, patch] = process.versions.node.split('.').map(Number); if (major < 22 || (major === 22 && (minor < 14 || (minor === 14 && patch < 0)))) process.exit(1)"
+          npm --version | awk -F. '{ if ($1 < 11 || ($1 == 11 && $2 < 5) || ($1 == 11 && $2 == 5 && $3 < 1)) exit 1 }'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Verify package contents
+        run: pnpm pack --dry-run
+
+      - name: Create version PR or publish release
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release
+          commit: "chore: update package versions"
+          title: "chore: update package versions"
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
