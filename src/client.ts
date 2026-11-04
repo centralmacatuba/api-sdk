@@ -220,11 +220,21 @@ export class CentralMacatuba {
         );
       }
 
-      if (body instanceof Blob && endpoint !== "/api/calendario/gerar") {
-        throw new CentralMacatubaError(
-          "A API retornou um conteúdo binário em um endpoint que declara resposta JSON.",
-          { status: response.status, statusText: response.statusText, url, headers: response.headers },
-        );
+      if (body instanceof Blob) {
+        if (endpoint !== "/api/calendario/gerar") {
+          throw new CentralMacatubaError(
+            "A API retornou um conteúdo binário em um endpoint que declara resposta JSON.",
+            { status: response.status, statusText: response.statusText, url, headers: response.headers },
+          );
+        }
+
+        const mediaType = body.type.split(";")[0]?.trim().toLowerCase();
+        if (mediaType !== "application/pdf" && mediaType !== "image/png") {
+          throw new CentralMacatubaError(
+            "A API retornou um formato binário não declarado pelo endpoint de calendário.",
+            { status: response.status, statusText: response.statusText, url, headers: response.headers },
+          );
+        }
       }
 
       return body as EndpointResponse<P>;
