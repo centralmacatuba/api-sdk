@@ -63,7 +63,8 @@
     "docs:build": "pnpm docs:generate && pnpm dlx vitepress@1.6.4 build docs",
     "docs:preview": "pnpm docs:generate && pnpm dlx vitepress@1.6.4 preview docs",
     "release": "changeset publish",
-    "docs:generate": "node scripts/generate-docs-reference.mjs"
+    "docs:generate": "node scripts/generate-docs-reference.mjs",
+    "docs:test": "pnpm docs:generate && vitest run test/docs.test.ts"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
