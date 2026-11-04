@@ -6,7 +6,7 @@
   "author": "Desenvolvedor EE <desenvolvedor.ee@desenvolvedoree.qzz.io> (https://desenvolvedoree.qzz.io)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/centralmacatuba/api-sdk.git"
+    "url": "git+https://github.com/centralmacatuba/api-sdk.git"
   },
   "homepage": "https://sdk.centralmacatuba.qzz.io/",
   "bugs": {
