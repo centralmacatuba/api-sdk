@@ -23,7 +23,7 @@ function validateTimeoutMs(value: number, url?: string): number {
   return value;
 }
 
-export const PUBLIC_ENDPOINTS = [
+export const PUBLIC_ENDPOINTS = Object.freeze([
   "/",
   "/api/avisos/verificar",
   "/api/calendario/verificar",
@@ -54,7 +54,7 @@ export const PUBLIC_ENDPOINTS = [
   "/api/servicos/streaming/live/verificar",
   "/api/sos/listar_alertas",
   "/api/tempo/verificar",
-] as const satisfies readonly (keyof paths)[];
+] as const satisfies readonly (keyof paths)[]);
 
 export type PublicEndpoint = (typeof PUBLIC_ENDPOINTS)[number];
 
