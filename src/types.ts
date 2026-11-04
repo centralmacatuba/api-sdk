@@ -79,18 +79,11 @@ export type EndpointRequestArgs<P extends keyof paths> =
 
 export type HealthResponse = EndpointResponse<"/">;
 
-type CalendarDayContract = EndpointResponse<"/api/calendario/verificar">;
-export type CalendarDayResponse = Omit<CalendarDayContract, "dia_semana"> & {
-  dia_semana: string;
-};
+/** Calendar verification response, kept identical to the OpenAPI contract. */
+export type CalendarDayResponse = EndpointResponse<"/api/calendario/verificar">;
 
-type CalendarGenerateContract = Exclude<
+/** JSON variant of calendar generation, excluding its documented PDF/PNG responses. */
+export type CalendarGenerateJsonResponse = Exclude<
   EndpointResponse<"/api/calendario/gerar">,
   Blob
 >;
-export type CalendarGenerateJsonResponse = Omit<
-  CalendarGenerateContract,
-  "meses"
-> & {
-  meses: Record<string, unknown>;
-};
