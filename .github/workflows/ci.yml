@@ -65,3 +65,6 @@ jobs:
 
       - name: Verify package contents
         run: pnpm pack --dry-run
+
+      - name: Verify ESM, CommonJS and TypeScript consumers
+        run: bash test/package-consumer.sh
