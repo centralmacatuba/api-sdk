@@ -42,9 +42,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Audit dependencies
-        run: pnpm audit --audit-level=low
-
       - name: Generate OpenAPI types
         run: pnpm generate:types
 
@@ -90,6 +87,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=low
+
 
       - name: Generate OpenAPI types
         run: pnpm generate:types
