@@ -56,6 +56,8 @@ export const PUBLIC_ENDPOINTS = Object.freeze([
   "/api/tempo/verificar",
 ] as const satisfies readonly (keyof paths)[]);
 
+const PUBLIC_ENDPOINT_SET: ReadonlySet<string> = new Set(PUBLIC_ENDPOINTS);
+
 export type PublicEndpoint = (typeof PUBLIC_ENDPOINTS)[number];
 
 /** Serializes query values, preserving repeated keys and omitting nullish values. */
@@ -146,7 +148,7 @@ export class CentralMacatuba {
     endpoint: P,
     ...args: EndpointRequestArgs<P>
   ): Promise<EndpointResponse<P>> {
-    if (!(PUBLIC_ENDPOINTS as readonly string[]).includes(endpoint)) {
+    if (!PUBLIC_ENDPOINT_SET.has(endpoint)) {
       throw new CentralMacatubaError("Endpoint não permitido. Use somente rotas da allowlist pública.");
     }
 
@@ -208,6 +210,20 @@ export class CentralMacatuba {
             response: body,
             headers: response.headers,
           },
+        );
+      }
+
+      if (body === undefined) {
+        throw new CentralMacatubaError(
+          "A API retornou uma resposta vazia incompatível com o contrato do endpoint.",
+          { status: response.status, statusText: response.statusText, url, headers: response.headers },
+        );
+      }
+
+      if (body instanceof Blob && endpoint !== "/api/calendario/gerar") {
+        throw new CentralMacatubaError(
+          "A API retornou um conteúdo binário em um endpoint que declara resposta JSON.",
+          { status: response.status, statusText: response.statusText, url, headers: response.headers },
         );
       }
 
