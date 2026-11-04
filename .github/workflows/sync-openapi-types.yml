@@ -58,4 +58,7 @@ jobs:
           git add -- src/generated/schema.d.ts
           git commit -m "chore: sync generated OpenAPI types"
           AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
-          git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push || {
+            git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" pull --rebase origin "$GITHUB_REF_NAME"
+            git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push
+          }
