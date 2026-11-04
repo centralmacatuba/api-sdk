@@ -214,7 +214,10 @@ export class CentralMacatuba {
     }
 
     try {
-      const response = await this.fetchImplementation(url, {
+      // Fetch nativa é um método sensível ao receptor em alguns navegadores.
+      // Invocá-la por uma variável local evita passar a instância do cliente como this.
+      const fetchImplementation = this.fetchImplementation;
+      const response = await fetchImplementation(url, {
         method: "GET",
         headers,
         signal: controller.signal,
