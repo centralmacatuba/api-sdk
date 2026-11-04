@@ -21,6 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
+          ref: ${{ github.ref }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -60,5 +61,18 @@ jobs:
           AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
           git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push || {
             git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" pull --rebase origin "$GITHUB_REF_NAME"
+
+            # O branch pode ter recebido um OpenAPI mais recente durante a execução.
+            # Regerar os tipos após o rebase evita publicar artefatos baseados no SHA antigo.
+            pnpm generate:types
+            if [ -n "$(git status --porcelain -- src/generated/schema.d.ts)" ]; then
+              git add -- src/generated/schema.d.ts
+              if [ "$(git log -1 --format=%s)" = "chore: sync generated OpenAPI types" ]; then
+                git commit --amend --no-edit
+              else
+                git commit -m "chore: sync generated OpenAPI types"
+              fi
+            fi
+
             git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push
           }
