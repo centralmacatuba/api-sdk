@@ -77,20 +77,20 @@ export type EndpointRequestArgs<P extends keyof paths> =
       ? [query?: EndpointQuery<P>, options?: RequestOptions]
       : [query: EndpointQuery<P>, options?: RequestOptions];
 
-export interface HealthResponse {
-  status: "ok";
-  service: "Central Macatuba - API Pública";
-  env: string;
-}
+export type HealthResponse = EndpointResponse<"/">;
 
-export interface CalendarDayResponse {
-  data: string;
+type CalendarDayContract = EndpointResponse<"/api/calendario/verificar">;
+export type CalendarDayResponse = Omit<CalendarDayContract, "dia_semana"> & {
   dia_semana: string;
-  fim_de_semana: boolean;
-  eventos: Array<Record<string, unknown>>;
-}
+};
 
-export interface CalendarGenerateJsonResponse {
-  ano: number;
+type CalendarGenerateContract = Exclude<
+  EndpointResponse<"/api/calendario/gerar">,
+  Blob
+>;
+export type CalendarGenerateJsonResponse = Omit<
+  CalendarGenerateContract,
+  "meses"
+> & {
   meses: Record<string, unknown>;
-}
+};
