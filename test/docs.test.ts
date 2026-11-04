@@ -51,13 +51,13 @@ function routeToMarkdownPath(route: string): string {
 }
 
 function markdownLinks(source: string): string[] {
-  const withoutCode = source.replace(/^\`\`\`[\\s\\S]*?^\`\`\`\\s*$/gm, "");
+  const withoutCode = source.replace(/^\`\`\`[\s\S]*?^\`\`\`\s*$/gm, "");
   const withoutInlineCode = withoutCode.replace(/\`[^\`]*\`/g, "");
   const links: string[] = [];
   const pattern = /!?\[[^\]]*\]\(([^)]+)\)/g;
 
   for (const match of withoutInlineCode.matchAll(pattern)) {
-    const destination = match[1].trim().match(/^<([^>]+)>|^([^\\s]+)/);
+    const destination = match[1].trim().match(/^<([^>]+)>|^([^\s]+)/);
     if (destination) links.push(destination[1] ?? destination[2]);
   }
 
@@ -91,7 +91,7 @@ function resolveLocalLink(sourceFile: string, destination: string): string | nul
 
 function codeBlocks(source: string): Array<{ language: string; code: string }> {
   const blocks: Array<{ language: string; code: string }> = [];
-  const pattern = /^\`\`\`([a-z0-9_-]+)[^\\n]*\\r?\\n([\\s\\S]*?)^\`\`\`\\s*$/gim;
+  const pattern = /^\`\`\`([a-z0-9_-]+)[^\n]*\r?\n([\s\S]*?)^\`\`\`\s*$/gim;
 
   for (const match of source.matchAll(pattern)) {
     blocks.push({ language: match[1].toLowerCase(), code: match[2] });
@@ -202,7 +202,7 @@ describe("documentation", () => {
       });
       const errors = (result.diagnostics ?? [])
         .filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)
-        .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, "\\n"));
+        .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"));
 
       expect(errors, `Exemplo inválido em ${relative(docsRoot, block.page)}`).toEqual([]);
       expect(result.outputText.trim().length).toBeGreaterThan(0);
