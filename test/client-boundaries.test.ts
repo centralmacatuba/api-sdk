@@ -33,6 +33,19 @@ describe("client boundaries", () => {
     expect(fetcher).not.toHaveBeenCalled();
   });
 
+  it("invokes the Fetch implementation without binding the client as this", async () => {
+    let receiver: unknown = "not-called";
+    const fetcher = function (this: unknown, _input: RequestInfo | URL, _init?: RequestInit) {
+      receiver = this;
+      return Promise.resolve(new Response('{"ok":true}', {
+        headers: { "content-type": "application/json" },
+      }));
+    };
+
+    await new CentralMacatuba({ fetch: fetcher }).request(path);
+    expect(receiver).toBeUndefined();
+  });
+
   it("parses vendor JSON media types, including case and parameters", async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response('{"ok":true}', {
       headers: { "content-type": "Application/Problem+JSON; charset=utf-8" },
