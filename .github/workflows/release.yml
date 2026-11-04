@@ -6,9 +6,7 @@ on:
       - principal
 
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
+  contents: read
 
 concurrency:
   group: release-${{ github.repository }}-principal
