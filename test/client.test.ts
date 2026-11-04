@@ -85,6 +85,21 @@ describe("CentralMacatuba", () => {
     expect((result as Blob).type).toBe("application/pdf");
   });
 
+  it("rejects undocumented binary formats from calendar generation", async () => {
+    const client = new CentralMacatuba({
+      fetch: vi.fn().mockResolvedValue(
+        new Response("unexpected", { headers: { "content-type": "text/plain" } }),
+      ),
+    });
+
+    await expect(
+      client.request("/api/calendario/gerar", { formato: "pdf" }),
+    ).rejects.toMatchObject({
+      name: "CentralMacatubaError",
+      message: "A API retornou um formato binário não declarado pelo endpoint de calendário.",
+    });
+  });
+
   it.each([204, 205])("rejects an empty HTTP %i response for a JSON endpoint", async (status) => {
     const fetcher = vi.fn().mockResolvedValue(new Response(null, { status }));
     const client = new CentralMacatuba({ fetch: fetcher });
