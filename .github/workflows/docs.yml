@@ -1,19 +1,9 @@
 name: Documentation
 
 on:
-  push:
-    paths:
-      - "docs/**"
-      - "scripts/**"
-      - "openapi/**"
-      - "test/docs.test.ts"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - ".github/workflows/docs.yml"
   pull_request:
     branches:
       - principal
-      - feat/sdk-inicial
     paths:
       - "docs/**"
       - "scripts/**"
