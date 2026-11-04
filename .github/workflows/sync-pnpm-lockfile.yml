@@ -42,11 +42,45 @@ jobs:
       # A full install creates pnpm-lock.yaml when it is missing and
       # synchronizes it when it already exists.
       - name: Regenerate lockfile
-        run: pnpm install --no-frozen-lockfile --ignore-scripts
+        run: pnpm install --no-frozen-lockfile
 
       # Validate with the exact frozen mode used by CI before committing.
       - name: Validate frozen lockfile
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=low
+
+      - name: Generate OpenAPI types
+        run: pnpm generate:types
+
+      - name: Verify generated types are unchanged
+        run: git diff --exit-code -- src/generated/schema.d.ts
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test suite (Node.js 22)
+        run: pnpm test
+
+      - name: Build and package (Node.js 22)
+        run: |
+          pnpm build
+          pnpm pack --dry-run
+
+      - name: Verify ESM, CommonJS and TypeScript consumers (Node.js 22)
+        run: bash test/package-consumer.sh
+
+      - name: Switch to Node.js 18
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 18
+
+      - name: Verify Node.js 18 build and package consumers
+        run: |
+          pnpm build
+          pnpm pack --dry-run
+          bash test/package-consumer.sh
 
       - name: Commit and push lockfile when changed or missing from Git
         env:
