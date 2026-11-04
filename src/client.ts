@@ -10,6 +10,19 @@ import type { paths } from "./generated/schema.js";
 
 export const DEFAULT_BASE_URL = "https://publica.api.centralmacatuba.qzz.io";
 
+const MAX_TIMEOUT_MS = 2_147_483_647;
+
+/** Validates a timeout against the range supported by setTimeout. */
+function validateTimeoutMs(value: number, url?: string): number {
+  if (!Number.isFinite(value) || value < 0 || value > MAX_TIMEOUT_MS) {
+    throw new CentralMacatubaError(
+      `timeoutMs deve ser um número finito entre 0 e ${MAX_TIMEOUT_MS} ms.`,
+      url ? { url } : {},
+    );
+  }
+  return value;
+}
+
 export const PUBLIC_ENDPOINTS = [
   "/",
   "/api/avisos/verificar",
@@ -117,10 +130,7 @@ export class CentralMacatuba {
 
   constructor(options: CentralMacatubaOptions = {}) {
     this.baseUrl = normalizeBaseUrl(options.baseUrl ?? DEFAULT_BASE_URL);
-    this.timeoutMs = options.timeoutMs ?? 20_000;
-    if (!Number.isFinite(this.timeoutMs) || this.timeoutMs < 0) {
-      throw new CentralMacatubaError("timeoutMs deve ser um número finito maior ou igual a zero.");
-    }
+    this.timeoutMs = validateTimeoutMs(options.timeoutMs ?? 20_000);
 
     this.defaultHeaders = new Headers(options.headers);
     this.fetchImplementation = options.fetch ?? globalThis.fetch;
@@ -149,10 +159,7 @@ export class CentralMacatuba {
     const headers = new Headers(this.defaultHeaders);
     new Headers(options.headers).forEach((value, key) => headers.set(key, value));
 
-    const timeoutMs = options.timeoutMs ?? this.timeoutMs;
-    if (!Number.isFinite(timeoutMs) || timeoutMs < 0) {
-      throw new CentralMacatubaError("timeoutMs deve ser um número finito maior ou igual a zero.", { url });
-    }
+    const timeoutMs = validateTimeoutMs(options.timeoutMs ?? this.timeoutMs, url);
 
     const controller = new AbortController();
     let timedOut = false;
