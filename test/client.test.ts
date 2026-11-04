@@ -160,9 +160,27 @@ describe("CentralMacatuba", () => {
     expect(
       () => new CentralMacatuba({ baseUrl: "https://user:pass@example.com", fetch: vi.fn() }),
     ).toThrow(CentralMacatubaError);
+
+    for (const timeoutMs of [-1, Number.NaN, Number.POSITIVE_INFINITY, 2_147_483_648]) {
+      expect(
+        () => new CentralMacatuba({ timeoutMs, fetch: vi.fn() }),
+      ).toThrow(CentralMacatubaError);
+    }
+
     expect(
-      () => new CentralMacatuba({ timeoutMs: -1, fetch: vi.fn() }),
-    ).toThrow(CentralMacatubaError);
+      () => new CentralMacatuba({ timeoutMs: 2_147_483_647, fetch: vi.fn() }),
+    ).not.toThrow();
+  });
+
+  it("rejects per-request timeouts above the setTimeout limit with URL context", async () => {
+    const client = new CentralMacatuba({ fetch: vi.fn() });
+
+    await expect(
+      client.request("/api/avisos/verificar", undefined, { timeoutMs: 2_147_483_648 }),
+    ).rejects.toMatchObject({
+      name: "CentralMacatubaError",
+      url: "https://publica.api.centralmacatuba.qzz.io/api/avisos/verificar",
+    });
   });
 
   it("reports timeout separately from a regular network error", async () => {
