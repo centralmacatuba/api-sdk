@@ -140,6 +140,8 @@ Selecione `patch`, `minor` ou `major` conforme o impacto da mudança e inclua o 
 
 A publicação automatizada usa npm Trusted Publishing (OIDC), sem token de publicação permanente. A configuração do pacote no npm deve apontar para o repositório `centralmacatuba/api-sdk` e para o workflow `release.yml`. O workflow permanece desabilitado até a variável de repositório `NPM_RELEASE_ENABLED` receber o valor `true`. Primeiro publique manualmente a versão inicial do pacote no npm, configure o Trusted Publisher e, só então, habilite essa variável para as próximas versões.
 
+Para permitir que o workflow crie o PR de versionamento, ative **Allow GitHub Actions to create and approve pull requests** em **Settings > Actions > General > Workflow permissions**. Essa configuração do repositório é necessária além da permissão `pull-requests: write` declarada no workflow.
+
 ## Licença
 
 MIT. Consulte o arquivo `LICENSE` para os termos e a titularidade dos direitos autorais.
