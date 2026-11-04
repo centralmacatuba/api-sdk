@@ -25,6 +25,12 @@ describe("CentralMacatuba", () => {
     );
   });
 
+  it("keeps the exported public endpoint allowlist immutable", () => {
+    expect(Object.isFrozen(PUBLIC_ENDPOINTS)).toBe(true);
+    expect(Reflect.set(PUBLIC_ENDPOINTS, "0", "/")).toBe(false);
+    expect(PUBLIC_ENDPOINTS[0]).toBe("/");
+  });
+
   it("uses the official public API origin by default", () => {
     const client = new CentralMacatuba({ fetch: vi.fn() });
     expect(client.baseUrl).toBe("https://publica.api.centralmacatuba.qzz.io");
