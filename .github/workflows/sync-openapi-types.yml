@@ -59,20 +59,25 @@ jobs:
           git add -- src/generated/schema.d.ts
           git commit -m "chore: sync generated OpenAPI types"
           AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
-          git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push || {
-            git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" pull --rebase origin "$GITHUB_REF_NAME"
 
-            # O branch pode ter recebido um OpenAPI mais recente durante a execução.
-            # Regerar os tipos após o rebase evita publicar artefatos baseados no SHA antigo.
-            pnpm generate:types
-            if [ -n "$(git status --porcelain -- src/generated/schema.d.ts)" ]; then
-              git add -- src/generated/schema.d.ts
-              if [ "$(git log -1 --format=%s)" = "chore: sync generated OpenAPI types" ]; then
-                git commit --amend --no-edit
-              else
-                git commit -m "chore: sync generated OpenAPI types"
-              fi
-            fi
+          if git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push; then
+            exit 0
+          fi
 
-            git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push
-          }
+          # Não tente rebasear o commit gerado: isso pode conflitar justamente
+          # no arquivo que precisa ser regenerado. Volte à ponta remota e gere
+          # novamente usando o contrato e as dependências atuais.
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" fetch origin "$GITHUB_REF_NAME"
+          git reset --hard FETCH_HEAD
+
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm generate:types
+
+          if [ -z "$(git status --porcelain -- src/generated/schema.d.ts)" ]; then
+            echo "Generated OpenAPI types already match the updated branch."
+            exit 0
+          fi
+
+          git add -- src/generated/schema.d.ts
+          git commit -m "chore: sync generated OpenAPI types"
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push
