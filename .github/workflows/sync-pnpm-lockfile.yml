@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: sync-${{ github.ref }}
+  group: lockfile-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
