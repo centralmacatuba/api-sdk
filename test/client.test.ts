@@ -3,6 +3,7 @@ import {
   CentralMacatuba,
   CentralMacatubaError,
   CentralMacatubaSDK,
+  PUBLIC_ENDPOINTS,
 } from "../src/index.js";
 
 const json = (data: unknown, status = 200) =>
