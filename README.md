@@ -128,6 +128,12 @@ Para executar a documentação localmente:
 pnpm docs:dev
 ```
 
+Para executar os testes automatizados da documentação (links locais, navegação, exemplos e referência OpenAPI):
+
+```bash
+pnpm docs:test
+```
+
 Para validar a compilação:
 
 ```bash
