@@ -12,7 +12,10 @@ export const DEFAULT_BASE_URL = "https://publica.api.centralmacatuba.qzz.io";
 
 const MAX_TIMEOUT_MS = 2_147_483_647;
 
-/** Validates a timeout against the range supported by setTimeout. */
+/**
+ * Returns a finite timeout from 0 through 2,147,483,647 milliseconds.
+ * @throws {CentralMacatubaError} If the value is outside that range.
+ */
 function validateTimeoutMs(value: number, url?: string): number {
   if (!Number.isFinite(value) || value < 0 || value > MAX_TIMEOUT_MS) {
     throw new CentralMacatubaError(
@@ -74,7 +77,12 @@ function queryString(query?: object): string {
   return result ? `?${result}` : "";
 }
 
-/** Parses JSON responses and returns non-JSON payloads as blobs. */
+/**
+ * Parses JSON responses and returns other payloads as blobs. Returns undefined
+ * for HTTP 204/205 or an empty JSON body. Errors reading the response body
+ * propagate to the caller.
+ * @throws {CentralMacatubaError} If the response contains malformed JSON.
+ */
 async function parseBody(response: Response): Promise<unknown> {
   if (response.status === 204 || response.status === 205) return undefined;
 
@@ -99,7 +107,11 @@ async function parseBody(response: Response): Promise<unknown> {
   return response.blob();
 }
 
-/** Validates and normalizes the HTTP(S) base URL used by the client. */
+/**
+ * Normalizes an HTTP(S) base URL, removing trailing slashes.
+ * @throws {CentralMacatubaError} If the URL is invalid or contains credentials,
+ * a query, or a fragment.
+ */
 function normalizeBaseUrl(value: string): string {
   let url: URL;
   try {
@@ -130,6 +142,14 @@ export class CentralMacatuba {
   private readonly fetchImplementation: typeof fetch;
   private readonly defaultCredentials: RequestCredentials;
 
+  /**
+   * Creates a client using the public gateway and a 20,000 ms timeout by default.
+   * A timeout of 0 disables the timer; positive timeouts may be at most
+   * 2,147,483,647 ms. The base URL may include a path.
+   * @throws {CentralMacatubaError} If the base URL or timeout is invalid, or
+   * no Fetch implementation is available.
+   * @throws {TypeError} If the default headers are invalid.
+   */
   constructor(options: CentralMacatubaOptions = {}) {
     this.baseUrl = normalizeBaseUrl(options.baseUrl ?? DEFAULT_BASE_URL);
     this.timeoutMs = validateTimeoutMs(options.timeoutMs ?? 20_000);
@@ -143,7 +163,20 @@ export class CentralMacatuba {
     }
   }
 
-  /** Sends a typed GET request to an allowlisted public endpoint. */
+  /**
+   * Sends a GET request to an allowlisted public endpoint. Query arrays become
+   * repeated keys and nullish values are omitted. Per-request headers override
+   * matching client headers; credentials and timeout also override client defaults.
+   * A timeout of 0 disables the timer; other values must be finite and between
+   * 0 and 2,147,483,647 ms. The signal and timeout can abort the fetch.
+   *
+   * Returns parsed JSON, or a PDF/PNG Blob for calendar generation. JSON is not
+   * validated against the OpenAPI schema at runtime.
+   * @throws {CentralMacatubaError} For a disallowed endpoint, invalid timeout,
+   * failed HTTP response, malformed JSON, an empty successful response, unsupported binary
+   * response, or a fetch/body-reading failure including timeout or cancellation.
+   * @throws {TypeError} If the request headers are invalid.
+   */
   async request<P extends PublicEndpoint>(
     endpoint: P,
     ...args: EndpointRequestArgs<P>
