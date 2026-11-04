@@ -59,7 +59,7 @@ const api = new CentralMacatubaSDK({
 
 - URL padrão do gateway oficial da API pública.
 - Fetch API nativa, sem Axios ou dependências de runtime.
-- Node.js 18+ e navegadores com Fetch API.
+- Node.js 18+ e navegadores com Fetch API. A compatibilidade de consumo é validada em Node.js 18.
 - Builds ESM e CommonJS e declarações TypeScript.
 - Cada chamada aceita `{ signal, timeoutMs, headers, credentials }` como opções.
 - JSON é retornado como objeto tipado; arquivos PDF/PNG são retornados como `Blob`.
@@ -105,7 +105,7 @@ A allowlist de rotas e os tipos TypeScript são derivados/validados contra `open
 
 ## Desenvolvimento
 
-Requisitos: Node.js 18 ou superior e pnpm 12.12.1.
+Requisitos: Node.js 20 ou superior para executar a suíte completa (Vitest 4) e pnpm 12.12.1. O SDK publicado continua compatível com Node.js 18 ou superior; essa compatibilidade é validada separadamente na CI, incluindo build e consumo ESM/CommonJS/TypeScript em Node.js 18.
 
 ```bash
 pnpm install --frozen-lockfile
