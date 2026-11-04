@@ -45,7 +45,6 @@ export class CentralMacatubaSDK extends Client {
     super(options);
     const resources = createResources(this);
     this.resources = resources;
-    Object.assign(this, resources);
     this.health = resources.health;
     this.avisos = resources.avisos;
     this.calendario = resources.calendario;
