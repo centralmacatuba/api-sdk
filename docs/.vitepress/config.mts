@@ -3,6 +3,9 @@ export default {
   title: "@centralmacatuba/api",
   description: "Documentação oficial da SDK JavaScript e TypeScript da API pública da Central Macatuba.",
   lastUpdated: true,
+  vite: {
+    build: { target: "esnext" },
+  },
   head: [
     ["link", { rel: "stylesheet", href: "/custom.css" }],
   ],
