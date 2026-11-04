@@ -109,7 +109,10 @@ describe("client boundaries", () => {
       status: 200, headers: { "content-type": "application/json" },
     }));
     await expect(new CentralMacatuba({ fetch: fetcher }).request(path)).rejects.toMatchObject({
-      message: "A API retornou um JSON inválido.", response: "{broken", cause: expect.any(SyntaxError),
+      message: "A API retornou um JSON inválido.",
+      url: `https://publica.api.centralmacatuba.qzz.io${path}`,
+      response: "{broken",
+      cause: expect.any(SyntaxError),
     });
   });
 
