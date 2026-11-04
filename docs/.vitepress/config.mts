@@ -31,6 +31,7 @@ export default {
           { text: "Erros e respostas", link: "/guide/errors" },
           { text: "Cancelamento e timeout", link: "/guide/cancellation-timeout" },
           { text: "Cookies e SOS", link: "/guide/cookies-sos" },
+          { text: "Publicação e domínio", link: "/guide/deployment" },
         ] },
       ],
       "/reference/": [
