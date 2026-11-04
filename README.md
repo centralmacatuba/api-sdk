@@ -4,6 +4,12 @@ SDK em JavaScript e TypeScript para consumir a **API pública da Central Macatub
 
 > **Status:** desenvolvimento inicial (0.1.0). A interface pública poderá evoluir antes da primeira versão estável.
 
+## Documentação
+
+A documentação completa está disponível em **[sdk.centralmacatuba.qzz.io](https://sdk.centralmacatuba.qzz.io/)**.
+
+Ela reúne instalação, primeiros passos, configuração, exemplos JavaScript/TypeScript, tratamento de erros e referência dos endpoints e tipos.
+
 ## Projeto e autoria
 
 A Central Macatuba é um projeto independente desenvolvido por **Desenvolvedor EE (Dev EE)**. Não possui relação, vínculo institucional ou afiliação com a Prefeitura Municipal de Macatuba.
@@ -114,6 +120,18 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm pack --dry-run
+```
+
+Para executar a documentação localmente:
+
+```bash
+pnpm docs:dev
+```
+
+Para validar a compilação:
+
+```bash
+pnpm docs:build
 ```
 
 Para executar o teste de integração opcional do health check contra o gateway real:

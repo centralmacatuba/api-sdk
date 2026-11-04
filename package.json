@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/centralmacatuba/api-sdk.git"
   },
-  "homepage": "https://github.com/centralmacatuba/api-sdk#readme",
+  "homepage": "https://sdk.centralmacatuba.qzz.io/",
   "bugs": {
     "url": "https://github.com/centralmacatuba/api-sdk/issues"
   },
@@ -59,7 +59,11 @@
     "test:watch": "vitest",
     "prepack": "pnpm build",
     "test:integration": "vitest run test/integration.test.ts",
-    "release": "changeset publish"
+    "docs:dev": "pnpm docs:generate && pnpm dlx vitepress@1.6.4 dev docs",
+    "docs:build": "pnpm docs:generate && pnpm dlx vitepress@1.6.4 build docs",
+    "docs:preview": "pnpm docs:generate && pnpm dlx vitepress@1.6.4 preview docs",
+    "release": "changeset publish",
+    "docs:generate": "node scripts/generate-docs-reference.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
