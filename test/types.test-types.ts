@@ -68,4 +68,32 @@ type CalendarGenerateHolidayIsTyped = Assert<
   >
 >;
 
+function checkResourceTypes(api: import("../src/index.js").CentralMacatubaSDK) {
+
+  // Required query arguments must also be enforced on the public resource methods.
+  // @ts-expect-error jornal search requires a query
+  api.jornal.pesquisar();
+  // @ts-expect-error mapa search requires q
+  api.mapa.pesquisar({});
+  // @ts-expect-error redirect verification requires url
+  api.redicionador.verificar({});
+  // @ts-expect-error document verification requires slug
+  api.servicos.docs.verificar({});
+  // @ts-expect-error streaming search requires tipo
+  api.servicos.streaming.pesquisar({});
+  // @ts-expect-error streaming verification requires tipo
+  api.servicos.streaming.verificar({});
+  // @ts-expect-error streaming tipo must be one of the declared values
+  api.servicos.streaming.verificar({ tipo: "unknown" });
+  // @ts-expect-error non-calendar endpoints have no binary response
+  const healthBlob: Blob = {} as EndpointResponse<"/">;
+
+  void api.jornal.pesquisar({ q: "Macatuba", filtro: "titulo" });
+  void api.mapa.pesquisar({ q: "Macatuba" });
+  void api.redicionador.verificar({ url: "pagina" });
+  void api.servicos.docs.verificar({ slug: "documento" });
+  void api.servicos.streaming.pesquisar({ tipo: "radio" });
+  void api.servicos.streaming.verificar({ tipo: "tv" });
+}
+
 export {};
