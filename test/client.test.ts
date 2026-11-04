@@ -85,13 +85,30 @@ describe("CentralMacatuba", () => {
     expect((result as Blob).type).toBe("application/pdf");
   });
 
-  it.each([204, 205])("returns undefined for an empty HTTP %i response", async (status) => {
+  it.each([204, 205])("rejects an empty HTTP %i response for a JSON endpoint", async (status) => {
     const fetcher = vi.fn().mockResolvedValue(new Response(null, { status }));
     const client = new CentralMacatuba({ fetch: fetcher });
 
     await expect(
       client.request("/api/avisos/verificar"),
-    ).resolves.toBeUndefined();
+    ).rejects.toMatchObject({
+      name: "CentralMacatubaError",
+      status,
+      message: "A API retornou uma resposta vazia incompatível com o contrato do endpoint.",
+    });
+  });
+
+  it("rejects binary content from endpoints that declare JSON responses", async () => {
+    const client = new CentralMacatuba({
+      fetch: vi.fn().mockResolvedValue(
+        new Response("not-json", { headers: { "content-type": "text/plain" } }),
+      ),
+    });
+
+    await expect(client.request("/api/avisos/verificar")).rejects.toMatchObject({
+      name: "CentralMacatubaError",
+      message: "A API retornou um conteúdo binário em um endpoint que declara resposta JSON.",
+    });
   });
 
   it("preserves HTTP status and structured API error messages", async () => {
