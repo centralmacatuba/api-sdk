@@ -83,7 +83,7 @@ function queryString(query?: object): string {
  * propagate to the caller.
  * @throws {CentralMacatubaError} If the response contains malformed JSON.
  */
-async function parseBody(response: Response): Promise<unknown> {
+async function parseBody(response: Response, requestUrl: string): Promise<unknown> {
   if (response.status === 204 || response.status === 205) return undefined;
 
   const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
@@ -96,7 +96,7 @@ async function parseBody(response: Response): Promise<unknown> {
     } catch (cause) {
       throw new CentralMacatubaError("A API retornou um JSON inválido.", {
         status: response.status,
-        url: response.url,
+        url: response.url || requestUrl,
         headers: response.headers,
         response: text,
         cause,
@@ -224,7 +224,7 @@ export class CentralMacatuba {
         credentials: options.credentials ?? this.defaultCredentials,
       });
 
-      const body = await parseBody(response);
+      const body = await parseBody(response, url);
       if (!response.ok) {
         const apiMessage =
           body && typeof body === "object" && "erro" in body
