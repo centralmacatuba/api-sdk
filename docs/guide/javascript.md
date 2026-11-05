@@ -44,12 +44,6 @@ api.avisos.verificar()
 
 ## Arrays em parâmetros de consulta
 
-Valores de array são serializados como chaves repetidas na query string. Valores `null` e `undefined` são omitidos.
+Quando uma operação aceita um valor de array, cada item é serializado como uma ocorrência repetida da mesma chave na query string. Valores `null` e `undefined` são omitidos.
 
-```js
-await api.request("/api/exemplo", {
-  filtro: ["um", "dois"],
-});
-```
-
-Use somente endpoints existentes na allowlist pública. O exemplo de rota acima é ilustrativo; a SDK rejeita caminhos que não estejam autorizados.
+O contrato OpenAPI atual não declara parâmetros de consulta do tipo array nos endpoints públicos. Portanto, não há uma chamada real da API para demonstrar esse caso. A serialização será aplicada automaticamente caso um endpoint público passe a declarar esse tipo de parâmetro.
