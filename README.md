@@ -30,7 +30,7 @@ Também é possível usar `npm install @centralmacatuba/api` ou `yarn add @centr
 
 ### GitHub Packages
 
-O pacote também é publicado no GitHub Packages. Para instalar por esse registry, configure o escopo no arquivo `.npmrc` do projeto:
+O pacote também será publicado no GitHub Packages após a primeira publicação no npm Registry. Quando essa publicação estiver disponível, para instalar por esse registry configure o escopo no arquivo `.npmrc` do projeto:
 
 ```ini
 @centralmacatuba:registry=https://npm.pkg.github.com
