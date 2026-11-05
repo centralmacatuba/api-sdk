@@ -83,7 +83,7 @@ const api = new CentralMacatubaSDK({
 - Node.js 18+ e navegadores com Fetch API. A compatibilidade de consumo é validada em Node.js 18.
 - Builds ESM e CommonJS e declarações TypeScript.
 - Cada chamada aceita `{ signal, timeoutMs, headers, credentials }` como opções.
-- JSON é retornado como valor tipado; arquivos PDF/PNG são retornados como `Blob`.
+- As respostas JSON são retornadas como objetos ou arrays tipados; arquivos PDF/PNG são retornados como `Blob`.
 - `timeoutMs: 0` desativa o timeout.
 
 ## Cookies e SOS
