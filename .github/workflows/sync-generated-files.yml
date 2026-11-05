@@ -133,6 +133,10 @@ jobs:
           git -c http.extraheader="AUTHORIZATION: basic $auth_header" fetch origin "$BRANCH_NAME"
           git reset --hard FETCH_HEAD
 
+          if [[ "$SYNC_SCOPE" == "code" || "$SYNC_SCOPE" == "all" ]]; then
+            pnpm install --frozen-lockfile --ignore-scripts
+          fi
+
           generate_selected
           stage_selected
 
