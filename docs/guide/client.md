@@ -42,7 +42,7 @@ O contrato OpenAPI atual não declara parâmetros de consulta do tipo array nos 
 
 ## Respostas
 
-As respostas JSON são analisadas como valores JSON, não necessariamente como objetos: conforme o contrato do endpoint, podem ser objetos, arrays ou outros valores JSON. Respostas não JSON são lidas como `Blob`; para geração de calendário, os tipos binários documentados são PDF e PNG. A SDK não executa validação de schema JSON em runtime.
+As respostas JSON são analisadas como valores JSON; conforme o contrato do endpoint, podem ser objetos ou arrays. Respostas não JSON são lidas como `Blob`; para geração de calendário, os tipos binários documentados são PDF e PNG. A SDK não executa validação de schema JSON em runtime.
 
 ## Allowlist
 
