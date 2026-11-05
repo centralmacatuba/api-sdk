@@ -25,6 +25,8 @@ try {
 } catch (error: unknown) {
   if (error instanceof CentralMacatubaError) {
     console.error(error.status, error.response);
+  } else {
+    throw error;
   }
 }
 ```
