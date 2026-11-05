@@ -10,7 +10,7 @@ Antes da primeira publicação:
 2. Em **Build and deployment → Source**, selecione **GitHub Actions**.
 3. Salve a configuração.
 
-O workflow executa a compilação em cada push que altera a documentação. A etapa de deploy só é executada quando as alterações chegam à branch `principal`.
+O workflow valida as alterações em pull requests e também compila e publica automaticamente quando mudanças relevantes chegam à branch `principal`.
 
 ## Domínio personalizado
 
@@ -20,7 +20,7 @@ O domínio configurado no artefato é:
 
 O arquivo `docs/public/CNAME` é copiado para a raiz do site durante o build.
 
-Na zona DNS do domínio `qzz.io`, crie:
+Na zona DNS `centralmacatuba.qzz.io`, crie:
 
 | Tipo | Nome | Destino |
 |---|---|---|
