@@ -12,6 +12,7 @@ on:
       - "package.json"
       - "pnpm-lock.yaml"
       - ".github/workflows/docs.yml"
+      - ".github/workflows/sync-docs.yml"
   workflow_dispatch:
 
 permissions:
