@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       scope:
-        description: What should be synchronized?
+        description: O que deve ser sincronizado?
         type: choice
         required: true
         default: all
