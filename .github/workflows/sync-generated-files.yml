@@ -23,7 +23,7 @@ concurrency:
 jobs:
   sync:
     name: Synchronize ${{ inputs.scope }}
-    if: github.ref != 'refs/heads/principal'
+    if: github.ref_type == 'branch' && github.ref != 'refs/heads/principal'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
