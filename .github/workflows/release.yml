@@ -19,6 +19,7 @@ jobs:
       contents: write
       pull-requests: write
       id-token: write
+      packages: write
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -70,3 +71,11 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to GitHub Packages
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm config set //npm.pkg.github.com/:_authToken "\$NODE_AUTH_TOKEN" --location=user
+          npm publish --registry=https://npm.pkg.github.com
