@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - principal
-      - feat/sdk-inicial
   workflow_dispatch:
 
 permissions:
