@@ -681,7 +681,7 @@ Consulta um jogo por id, nome ou slug; sem identificador, retorna HTTP 400, e jo
 
 **streaming / pesquisar**
 
-tipo é obrigatório. filtro aceita nome, descricao_curta, descricao_longa, tipo ou tudo; valores desconhecidos usam tudo.
+tipo é obrigatório. filtro seleciona um campo de pesquisa conforme o tipo: radio e podcast aceitam nome, descricao_curta, descricao_longa e tipo; tv aceita nome, descricao_curta, descricao_longa, categoria e qualidade; vod aceita nome, descricao_curta, descricao_longa, categoria e classificacao; camera aceita nome, descricao_longa e tipo_stream. filtro=tudo (padrão) ou um valor não disponível para o tipo informado pesquisa em todos os campos daquele tipo.
 
 ### Parâmetros de consulta
 
