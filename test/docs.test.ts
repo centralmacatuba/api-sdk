@@ -189,8 +189,8 @@ describe("documentation", () => {
     expect(blocks.length).toBeGreaterThan(0);
 
     for (const [index, block] of blocks.entries()) {
-      expect(["js", "ts", "bash"]).toContain(block.language);
-      if (block.language === "bash") continue;
+      expect(["js", "ts", "bash", "ini"]).toContain(block.language);
+      if (block.language === "bash" || block.language === "ini") continue;
 
       const result = ts.transpileModule(block.code, {
         fileName: `documentation-example-${index}.${block.language}`,
