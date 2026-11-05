@@ -18,13 +18,28 @@ Este SDK é mantido no âmbito desse projeto independente. O nome Central Macatu
 
 ## Instalação
 
-> **Atenção:** o pacote ainda não está publicado no npm. Use o comando abaixo somente após a publicação da versão 0.1.0.
+> **Atenção:** a versão `0.1.0` ainda não foi publicada. Os comandos abaixo só funcionarão depois que a primeira publicação estiver disponível no registry escolhido.
+
+Por padrão, o escopo `@centralmacatuba` usa o npm Registry:
 
 ```bash
 pnpm add @centralmacatuba/api
 ```
 
-O pacote também poderá ser instalado por npm ou yarn. O desenvolvimento deste repositório usa pnpm 12.12.1.
+Também é possível usar `npm install @centralmacatuba/api` ou `yarn add @centralmacatuba/api`.
+
+### GitHub Packages
+
+O pacote também é publicado no GitHub Packages. Para instalar por esse registry, configure o escopo no arquivo `.npmrc` do projeto:
+
+```ini
+@centralmacatuba:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GH_PACKAGES_TOKEN}
+```
+
+Defina `GH_PACKAGES_TOKEN` no ambiente com um Personal Access Token (classic) que tenha a permissão `read:packages` e acesso ao pacote. Em ambientes de CI, prefira armazenar o token em um secret e disponibilizá-lo como variável de ambiente, sem gravá-lo no repositório.
+
+Para voltar a instalar pelo npm Registry, remova a configuração de escopo do `.npmrc` ou altere-a para `https://registry.npmjs.org`.
 
 ## JavaScript
 
@@ -68,7 +83,7 @@ const api = new CentralMacatubaSDK({
 - Node.js 18+ e navegadores com Fetch API. A compatibilidade de consumo é validada em Node.js 18.
 - Builds ESM e CommonJS e declarações TypeScript.
 - Cada chamada aceita `{ signal, timeoutMs, headers, credentials }` como opções.
-- JSON é retornado como objeto tipado; arquivos PDF/PNG são retornados como `Blob`.
+- JSON é retornado como valor tipado; arquivos PDF/PNG são retornados como `Blob`.
 - `timeoutMs: 0` desativa o timeout.
 
 ## Cookies e SOS
@@ -148,7 +163,11 @@ CM_API_INTEGRATION=1 pnpm test:integration
 
 Esse teste não é executado na suíte padrão para evitar que indisponibilidades externas tornem o CI instável. Os testes unitários e os testes de tipos não dependem da API em produção.
 
-O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública. Depois de alterar esse contrato, execute `pnpm generate:types` e revise/registre `src/generated/schema.d.ts`. Para sincronizar o arquivo diretamente pelo GitHub Actions, use o workflow manual **Sync OpenAPI types** na branch de trabalho; ele gera e envia somente esse arquivo.
+O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública. Depois de alterar esse contrato, execute `pnpm generate:types` e revise/registre `src/generated/schema.d.ts`. Para sincronizar os arquivos gerados pelo GitHub Actions, execute o workflow manual **Sync generated files** na branch de trabalho e selecione:
+
+- `code`: sincroniza os tipos TypeScript gerados;
+- `docs`: sincroniza a referência de endpoints;
+- `all`: sincroniza os dois conjuntos de arquivos.
 
 ## Releases
 
@@ -160,9 +179,11 @@ Antes de concluir um PR com mudanças que alterem o pacote, crie um changeset:
 pnpm changeset
 ```
 
-Selecione `patch`, `minor` ou `major` conforme o impacto da mudança e inclua o arquivo gerado em `.changeset/`. O workflow **Release** na branch `principal` reúne as alterações em um PR de versionamento. Depois da revisão e do merge desse PR, o workflow valida, publica no npm, cria a tag Git e registra a GitHub Release.
+Selecione `patch`, `minor` ou `major` conforme o impacto da mudança e inclua o arquivo gerado em `.changeset/`. O workflow **Release** na branch `principal` reúne as alterações em um PR de versionamento. Depois da revisão e do merge desse PR, o workflow valida e publica a versão no npm Registry e no GitHub Packages, cria a tag Git e registra a GitHub Release. A publicação no GitHub Packages é reconciliada pela versão exata disponível no npm, de modo que uma nova execução possa completar uma publicação parcial sem tentar publicar novamente a mesma versão.
 
-A publicação automatizada usa npm Trusted Publishing (OIDC), sem token de publicação permanente. A configuração do pacote no npm deve apontar para o repositório `centralmacatuba/api-sdk` e para o workflow `release.yml`. O workflow permanece desabilitado até a variável de repositório `NPM_RELEASE_ENABLED` receber o valor `true`. Primeiro publique manualmente a versão inicial do pacote no npm, configure o Trusted Publisher e, só então, habilite essa variável para as próximas versões.
+A publicação no npm usa Trusted Publishing (OIDC), sem token permanente. Configure o Trusted Publisher para o repositório `centralmacatuba/api-sdk` e para o workflow `release.yml`. O workflow permanece desabilitado até a variável de repositório `NPM_RELEASE_ENABLED` receber o valor `true`. Primeiro publique manualmente a versão inicial do pacote no npm, configure e teste o Trusted Publisher e, só então, habilite essa variável para as próximas versões. Se o Trusted Publisher tiver sido configurado a partir de 3 de setembro de 2026, confira também se a opção **Allow npm publish** está habilitada; sem ela, o fluxo `changeset publish` não poderá executar `npm publish`.
+
+O pacote do GitHub Packages pode exigir ajuste de visibilidade após a primeira publicação. Se a intenção for disponibilizá-lo publicamente, confira as configurações do pacote em **GitHub → Packages → Package settings** e defina a visibilidade como **Public**.
 
 Para permitir que o workflow crie o PR de versionamento, ative **Allow GitHub Actions to create and approve pull requests** em **Settings > Actions > General > Workflow permissions**. Essa configuração do repositório é necessária além da permissão `pull-requests: write` declarada no workflow.
 
