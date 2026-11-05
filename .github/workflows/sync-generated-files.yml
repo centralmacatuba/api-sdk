@@ -1,0 +1,145 @@
+name: Sync generated files
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: O que deve ser sincronizado?
+        type: choice
+        required: true
+        default: all
+        options:
+          - code
+          - docs
+          - all
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-generated-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Synchronize ${{ inputs.scope }}
+    if: github.ref_type == 'branch' && github.ref != 'refs/heads/principal'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        if: inputs.scope == 'code' || inputs.scope == 'all'
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 12.12.1
+          run_install: false
+
+      - name: Install dependencies
+        if: inputs.scope == 'code' || inputs.scope == 'all'
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate selected files and push
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SYNC_SCOPE: ${{ inputs.scope }}
+          BRANCH_NAME: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          generate_selected() {
+            case "$SYNC_SCOPE" in
+              code)
+                pnpm generate:types
+                ;;
+              docs)
+                node scripts/generate-docs-reference.mjs
+                ;;
+              all)
+                pnpm generate:types
+                node scripts/generate-docs-reference.mjs
+                ;;
+              *)
+                echo "::error::Unsupported synchronization scope: $SYNC_SCOPE"
+                exit 1
+                ;;
+            esac
+          }
+
+          stage_selected() {
+            case "$SYNC_SCOPE" in
+              code)
+                git add -- src/generated/schema.d.ts
+                ;;
+              docs)
+                git add -- docs/reference/openapi-endpoints.md
+                ;;
+              all)
+                git add -- src/generated/schema.d.ts docs/reference/openapi-endpoints.md
+                ;;
+            esac
+          }
+
+          commit_message() {
+            case "$SYNC_SCOPE" in
+              code) echo "chore: sync generated OpenAPI types" ;;
+              docs) echo "docs: sync generated OpenAPI reference" ;;
+              all) echo "chore: sync generated files" ;;
+            esac
+          }
+
+          configure_git() {
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          }
+
+          push_with_token() {
+            local auth_header
+            auth_header="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
+            git -c http.extraheader="AUTHORIZATION: basic $auth_header" push origin "HEAD:$BRANCH_NAME"
+          }
+
+          generate_selected
+          stage_selected
+
+          if git diff --cached --quiet; then
+            echo "Selected generated files are already synchronized."
+            exit 0
+          fi
+
+          configure_git
+          git commit -m "$(commit_message)"
+
+          if push_with_token; then
+            exit 0
+          fi
+
+          # Rebuild from the latest branch tip; do not rebase generated output.
+          auth_header="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
+          git -c http.extraheader="AUTHORIZATION: basic $auth_header" fetch origin "$BRANCH_NAME"
+          git reset --hard FETCH_HEAD
+
+          generate_selected
+          stage_selected
+
+          if git diff --cached --quiet; then
+            echo "Selected generated files already match the updated branch."
+            exit 0
+          fi
+
+          git commit -m "$(commit_message)"
+          push_with_token
