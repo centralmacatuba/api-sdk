@@ -2,7 +2,7 @@
 
 A SDK mantém uma cópia versionada do contrato da API pública em `openapi/openapi.json`. Esse documento é a referência para os caminhos, parâmetros, operações e schemas utilizados na geração dos tipos TypeScript.
 
-- [Visualizar openapi.json no GitHub](https://github.com/centralmacatuba/api-sdk/blob/feat/sdk-inicial/openapi/openapi.json)
+- [Visualizar openapi.json no GitHub](https://github.com/centralmacatuba/api-sdk/blob/principal/openapi/openapi.json)
 - [Documentação da API pública](https://centralmacatuba.github.io/api-publica-docs/)
 
 ## Atualização do contrato
