@@ -1,0 +1,68 @@
+name: Sync documentation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-generated-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    permissions:
+      contents: write
+    if: github.ref != 'refs/heads/principal'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Generate documentation reference
+        run: node scripts/generate-docs-reference.mjs
+
+      - name: Commit and push generated documentation when changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain -- docs/reference/openapi-endpoints.md)" ]; then
+            echo "Generated documentation is already synchronized."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -- docs/reference/openapi-endpoints.md
+          git commit -m "docs: sync generated OpenAPI reference"
+          AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
+
+          if git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push; then
+            exit 0
+          fi
+
+          # Rebuild from the latest branch tip instead of rebasing a generated file.
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" fetch origin "$GITHUB_REF_NAME"
+          git reset --hard FETCH_HEAD
+          node scripts/generate-docs-reference.mjs
+
+          if [ -z "$(git status --porcelain -- docs/reference/openapi-endpoints.md)" ]; then
+            echo "Generated documentation already matches the updated branch."
+            exit 0
+          fi
+
+          git add -- docs/reference/openapi-endpoints.md
+          git commit -m "docs: sync generated OpenAPI reference"
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push
