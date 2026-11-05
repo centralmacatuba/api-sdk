@@ -38,7 +38,7 @@ console.log(resultado);
 
 ## TypeScript
 
-Os parâmetros e as respostas JSON são inferidos do contrato OpenAPI incluído no pacote. Os métodos também validam em tempo de compilação os parâmetros obrigatórios de cada endpoint.
+Os parâmetros e as respostas JSON são inferidos do contrato OpenAPI versionado neste repositório. O pacote publicado inclui as declarações TypeScript geradas a partir desse contrato, mas não distribui o arquivo `openapi/openapi.json`. Os métodos também validam em tempo de compilação os parâmetros obrigatórios de cada endpoint.
 
 ```ts
 import { CentralMacatubaSDK } from "@centralmacatuba/api";
