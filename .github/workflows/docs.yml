@@ -1,6 +1,18 @@
 name: Documentation
 
 on:
+  push:
+    branches:
+      - principal
+    paths:
+      - "docs/**"
+      - "scripts/**"
+      - "openapi/**"
+      - "test/docs.test.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/docs.yml"
+      - ".github/workflows/sync-generated-files.yml"
   pull_request:
     branches:
       - principal
