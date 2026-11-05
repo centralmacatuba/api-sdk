@@ -63,7 +63,7 @@ jobs:
 
       - name: Create version PR or publish release
         id: changesets
-        uses: changesets/action@e0538e686673de0265c8a3e2904b8c76beaa43fd # v1.5.2
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         with:
           publish: pnpm release
           commit: "chore: update package versions"
@@ -72,11 +72,31 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to GitHub Packages
-        if: steps.changesets.outputs.published == 'true'
+      # Reconcile GitHub Packages against the exact npm version on every
+      # successful run. This also makes a retry safe after a partial publish.
+      - name: Publish or reconcile GitHub Packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
+          set -euo pipefail
+
+          PACKAGE_NAME="$(node -p "require('./package.json').name")"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          NPM_REGISTRY="https://registry.npmjs.org/"
+          GITHUB_REGISTRY="https://npm.pkg.github.com"
+
+          if ! npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version --registry="$NPM_REGISTRY" >/dev/null 2>&1; then
+            echo "::notice::${PACKAGE_NAME}@${PACKAGE_VERSION} is not available on npm yet; skipping GitHub Packages."
+            exit 0
+          fi
+
           npm config set //npm.pkg.github.com/:_authToken "$NODE_AUTH_TOKEN" --location=user
-          node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.publishConfig={...p.publishConfig,registry:'https://npm.pkg.github.com'};fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
-          npm publish
+
+          if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version --registry="$GITHUB_REGISTRY" >/dev/null 2>&1; then
+            echo "${PACKAGE_NAME}@${PACKAGE_VERSION} already exists on GitHub Packages."
+            exit 0
+          fi
+
+          node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.publishConfig={...p.publishConfig,registry:'https://npm.pkg.github.com'};fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
+          npm publish --registry="$GITHUB_REGISTRY"
