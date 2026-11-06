@@ -11,7 +11,7 @@ const resultado = await api.jornal.pesquisar({ q: "Macatuba" });
 console.log(resultado);
 ```
 
-A URL padrão é `https://publica.api.centralmacatuba.qzz.io`. Em uma aplicação TypeScript, os parâmetros e os retornos são inferidos a partir do contrato OpenAPI incluído na SDK.
+A URL padrão é `https://publica.api.centralmacatuba.qzz.io`. Em uma aplicação TypeScript, os parâmetros e os retornos usam declarações geradas a partir do contrato OpenAPI versionado neste repositório. O arquivo `openapi/openapi.json` é mantido no repositório e não é incluído no pacote publicado.
 
 ## Consultar o estado da API
 
@@ -36,8 +36,19 @@ const arquivo = await api.calendario.gerar({ ano: 2026, formato: "pdf" });
 
 if (arquivo instanceof Blob) {
   const url = URL.createObjectURL(arquivo);
-  // Use a URL em um link ou elemento de visualização.
-  URL.revokeObjectURL(url);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "calendario.pdf";
+  link.textContent = "Baixar calendário";
+  document.body.append(link);
+
+  // Mantenha a URL enquanto o link estiver disponível.
+  link.addEventListener("click", () => {
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      link.remove();
+    }, 60_000);
+  }, { once: true });
 }
 ```
 
