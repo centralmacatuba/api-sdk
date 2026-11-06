@@ -14,21 +14,27 @@ O workflow valida as alterações em pull requests e também compila e publica a
 
 ## Domínio personalizado
 
-O domínio configurado no artefato é:
+O domínio personalizado é:
 
 `sdk.centralmacatuba.qzz.io`
 
-O arquivo `docs/public/CNAME` é copiado para a raiz do site durante o build.
+**Antes de criar qualquer registro DNS**, associe o domínio ao repositório:
 
-Na zona DNS `centralmacatuba.qzz.io`, crie:
+1. Abra **Settings → Pages** no repositório `centralmacatuba/api-sdk`.
+2. Em **Custom domain**, informe `sdk.centralmacatuba.qzz.io` e salve.
+3. Aguarde o GitHub Pages aceitar a configuração. Se houver uma etapa de verificação de propriedade do domínio, conclua-a antes de prosseguir.
+
+Essa ordem é importante para associar o domínio à sua conta antes de apontá-lo para o GitHub Pages, reduzindo o risco de apropriação por terceiros.
+
+Depois de salvar o domínio no GitHub, crie o registro na zona DNS `centralmacatuba.qzz.io`:
 
 | Tipo | Nome | Destino |
 |---|---|---|
 | CNAME | `sdk` | `centralmacatuba.github.io` |
 
-Recomendação para a primeira configuração: deixe o registro como **DNS only** no Cloudflare até o GitHub Pages validar o domínio e emitir o certificado TLS. Depois da validação, você pode avaliar se deseja ativar o proxy do Cloudflare.
+Na primeira configuração, mantenha o registro como **DNS only** no Cloudflare até o GitHub Pages validar o domínio e emitir o certificado TLS. Depois da validação, você pode avaliar se deseja ativar o proxy do Cloudflare.
 
-Em **Settings → Pages → Custom domain**, confirme `sdk.centralmacatuba.qzz.io` se o GitHub ainda não o tiver reconhecido pelo arquivo `CNAME`. Aguarde a emissão do certificado e habilite **Enforce HTTPS** quando a opção estiver disponível.
+O arquivo `docs/public/CNAME` mantém o nome do domínio no artefato publicado, mas **não substitui** o cadastro em **Settings → Pages → Custom domain**. Aguarde a emissão do certificado e habilite **Enforce HTTPS** quando a opção estiver disponível.
 
 ## Fluxo de deploy
 
