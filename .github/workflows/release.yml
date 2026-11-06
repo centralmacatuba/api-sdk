@@ -86,16 +86,51 @@ jobs:
           NPM_REGISTRY="https://registry.npmjs.org/"
           GITHUB_REGISTRY="https://npm.pkg.github.com"
 
-          if ! npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version --registry="$NPM_REGISTRY" >/dev/null 2>&1; then
-            echo "::notice::${PACKAGE_NAME}@${PACKAGE_VERSION} is not available on npm yet; skipping GitHub Packages."
-            exit 0
+          # Return 0 when the version exists, 1 only for a genuine 404,
+          # and 2 for registry/network/authentication failures.
+          registry_has_version() {
+            local registry="$1"
+            local error_file
+            error_file="$(mktemp)"
+
+            if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version --registry="$registry" >/dev/null 2>"$error_file"; then
+              rm -f "$error_file"
+              return 0
+            fi
+
+            if grep -Eqi 'E404|404 Not Found|No match found' "$error_file"; then
+              rm -f "$error_file"
+              return 1
+            fi
+
+            cat "$error_file" >&2
+            rm -f "$error_file"
+            return 2
+          }
+
+          if registry_has_version "$NPM_REGISTRY"; then
+            echo "${PACKAGE_NAME}@${PACKAGE_VERSION} is available on npm."
+          else
+            result=$?
+            if [[ "$result" -eq 1 ]]; then
+              echo "::notice::${PACKAGE_NAME}@${PACKAGE_VERSION} is not available on npm yet; skipping GitHub Packages."
+              exit 0
+            fi
+            echo "::error::Could not verify ${PACKAGE_NAME}@${PACKAGE_VERSION} on npm."
+            exit "$result"
           fi
 
           npm config set //npm.pkg.github.com/:_authToken "$NODE_AUTH_TOKEN" --location=user
 
-          if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version --registry="$GITHUB_REGISTRY" >/dev/null 2>&1; then
+          if registry_has_version "$GITHUB_REGISTRY"; then
             echo "${PACKAGE_NAME}@${PACKAGE_VERSION} already exists on GitHub Packages."
             exit 0
+          else
+            result=$?
+            if [[ "$result" -ne 1 ]]; then
+              echo "::error::Could not verify ${PACKAGE_NAME}@${PACKAGE_VERSION} on GitHub Packages."
+              exit "$result"
+            fi
           fi
 
           npm publish --registry="$GITHUB_REGISTRY"
