@@ -101,7 +101,12 @@ function codeBlocks(source: string): Array<{ language: string; code: string }> {
 }
 
 beforeAll(() => {
+  // Capture the committed reference before generation can overwrite it.
+  const committedReference = readFileSync(generatedReference, "utf8");
   execFileSync(process.execPath, [generator], { cwd: root, stdio: "pipe" });
+  const generated = readFileSync(generatedReference, "utf8");
+
+  expect(generated).toBe(committedReference);
 });
 
 describe("documentation", () => {
