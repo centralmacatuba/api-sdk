@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, extname, relative, resolve, sep } from "node:path";
 import ts from "typescript";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -101,12 +101,17 @@ function codeBlocks(source: string): Array<{ language: string; code: string }> {
 }
 
 beforeAll(() => {
-  // Capture the committed reference before generation can overwrite it.
+  // Keep the committed file intact even when generation or the assertion fails.
   const committedReference = readFileSync(generatedReference, "utf8");
-  execFileSync(process.execPath, [generator], { cwd: root, stdio: "pipe" });
-  const generated = readFileSync(generatedReference, "utf8");
 
-  expect(generated).toBe(committedReference);
+  try {
+    execFileSync(process.execPath, [generator], { cwd: root, stdio: "pipe" });
+    const generated = readFileSync(generatedReference, "utf8");
+
+    expect(generated).toBe(committedReference);
+  } finally {
+    writeFileSync(generatedReference, committedReference, "utf8");
+  }
 });
 
 describe("documentation", () => {
