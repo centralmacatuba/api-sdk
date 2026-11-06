@@ -32,7 +32,15 @@ Depois de salvar o domínio no GitHub, crie o registro na zona DNS `centralmacat
 |---|---|---|
 | CNAME | `sdk` | `centralmacatuba.github.io` |
 
-Na primeira configuração, mantenha o registro como **DNS only** no Cloudflare até o GitHub Pages validar o domínio e emitir o certificado TLS. Depois da validação, você pode avaliar se deseja ativar o proxy do Cloudflare.
+Na primeira configuração, mantenha o registro como **DNS only** no Cloudflare até o GitHub Pages validar o domínio e emitir o certificado TLS.
+
+Se decidir ativar o proxy do Cloudflare depois dessa validação:
+
+1. Em **SSL/TLS → Overview**, selecione **Full** ou, preferencialmente quando a origem apresentar um certificado válido, **Full (strict)**.
+2. **Não use Flexible**: com **Enforce HTTPS** habilitado no GitHub Pages, esse modo pode causar um ciclo de redirecionamentos entre HTTP e HTTPS.
+3. Só então altere o registro DNS de **DNS only** para **Proxied** e teste o acesso HTTP e HTTPS.
+
+Se não precisar dos recursos de proxy do Cloudflare, mantenha o registro como **DNS only**.
 
 O arquivo `docs/public/CNAME` mantém o nome do domínio no artefato publicado, mas **não substitui** o cadastro em **Settings → Pages → Custom domain**. Aguarde a emissão do certificado e habilite **Enforce HTTPS** quando a opção estiver disponível.
 
