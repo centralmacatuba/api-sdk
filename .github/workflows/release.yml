@@ -133,4 +133,17 @@ jobs:
             fi
           fi
 
+          # publishConfig is publish-time configuration; switch the manifest too so
+          # the package cannot retain npmjs as its secondary registry destination.
+          node --input-type=module <<'NODE'
+          import { readFile, writeFile } from "node:fs/promises";
+
+          const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+          packageJson.publishConfig = {
+            ...(packageJson.publishConfig ?? {}),
+            registry: "https://npm.pkg.github.com"
+          };
+          await writeFile("package.json", JSON.stringify(packageJson, null, 2) + "\\n");
+          NODE
+
           npm publish --registry="$GITHUB_REGISTRY"
