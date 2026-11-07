@@ -143,7 +143,7 @@ jobs:
             ...(packageJson.publishConfig ?? {}),
             registry: "https://npm.pkg.github.com"
           };
-          await writeFile("package.json", JSON.stringify(packageJson, null, 2) + "\\n");
+          await writeFile("package.json", JSON.stringify(packageJson, null, 2) + String.fromCharCode(10));
           NODE
 
           npm publish --registry="$GITHUB_REGISTRY"
