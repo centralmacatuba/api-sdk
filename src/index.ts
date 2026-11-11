@@ -41,6 +41,10 @@ export class CentralMacatubaSDK extends Client {
   readonly sos: ReturnType<typeof createResources>["sos"];
   readonly tempo: ReturnType<typeof createResources>["tempo"];
 
+  /**
+   * Creates a client whose resource namespaces are also available under `resources`.
+   * Options and validation errors are inherited from {@link CentralMacatuba}.
+   */
   constructor(options: CentralMacatubaOptions = {}) {
     super(options);
     const resources = createResources(this);

@@ -6,10 +6,16 @@ const contractPath = resolve(root, "openapi/openapi.json");
 const outputPath = resolve(root, "docs/reference/openapi-endpoints.md");
 const contract = JSON.parse(await readFile(contractPath, "utf8"));
 
+/** Escapes table delimiters and flattens newlines, using an em dash for nullish values. */
 function escapeCell(value) {
   return String(value ?? "—").replaceAll("|", "\\|").replaceAll("\n", " ");
 }
 
+/**
+ * Returns a display label for an OpenAPI schema, recursively describing arrays
+ * and unions. References use their final path segment without being resolved;
+ * unrecognized schemas use the generic OpenAPI label.
+ */
 function schemaType(schema = {}) {
   if (schema.$ref) return schema.$ref.split("/").at(-1);
   if (schema.enum) return schema.enum.map((value) => JSON.stringify(value)).join(" / ");
