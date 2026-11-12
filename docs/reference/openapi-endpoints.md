@@ -285,7 +285,7 @@ Retorna a lista de links, um link individual ou as solicitações pendentes, con
 
 **pesquisar**
 
-O parâmetro q não vazio é necessário para obter resultados; quando omitido ou vazio, a implementação atual retorna um objeto de erro com HTTP 200. O filtro aceita nome, tipo, criador e descricao; outros valores caem no comportamento de pesquisa em todos os campos.
+O parâmetro `q` deve conter um termo não vazio para obter resultados. Quando omitido ou vazio, a implementação atual retorna um objeto de erro com HTTP 200. O filtro aceita os valores `nome`, `tipo`, `criador` e `descricao`; outros valores acionam a pesquisa em todos os campos.
 
 ### Parâmetros de consulta
 
@@ -296,7 +296,7 @@ O parâmetro q não vazio é necessário para obter resultados; quando omitido o
 
 ### Resposta de sucesso (HTTP 200)
 
-Pesquisa. Com q não vazio, retorna o envelope de resultados; quando q está vazio ou ausente, o PHP retorna um objeto erro com HTTP 200.
+Quando `q` não está vazio, retorna o envelope de resultados. Quando está vazio ou ausente, o PHP retorna um objeto de erro com HTTP 200.
 
 ### Respostas adicionais
 
@@ -681,7 +681,7 @@ Consulta um jogo por id, nome ou slug; sem identificador, retorna HTTP 400, e jo
 
 **streaming / pesquisar**
 
-tipo é obrigatório. filtro seleciona um campo de pesquisa conforme o tipo: radio e podcast aceitam nome, descricao_curta, descricao_longa e tipo; tv aceita nome, descricao_curta, descricao_longa, categoria e qualidade; vod aceita nome, descricao_curta, descricao_longa, categoria e classificacao; camera aceita nome, descricao_longa e tipo_stream. filtro=tudo (padrão) ou um valor não disponível para o tipo informado pesquisa em todos os campos daquele tipo.
+O parâmetro `tipo` é obrigatório. O parâmetro `filtro` seleciona um campo de pesquisa conforme o tipo: `radio` e `podcast` aceitam `nome`, `descricao_curta`, `descricao_longa` e `tipo`; `tv` aceita `nome`, `descricao_curta`, `descricao_longa`, `categoria` e `qualidade`; `vod` aceita `nome`, `descricao_curta`, `descricao_longa`, `categoria` e `classificacao`; `camera` aceita `nome`, `descricao_longa` e `tipo_stream`. O valor `filtro=tudo` (padrão) ou um filtro não disponível para o tipo informado faz a pesquisa em todos os campos daquele tipo.
 
 ### Parâmetros de consulta
 
@@ -710,7 +710,7 @@ Retorna os registros ativos que correspondem à busca. Os campos pesquisados dep
 
 **streaming / verificar**
 
-tipo é obrigatório. funcao=uma com id consulta um item; nos demais casos a implementação lista os itens ativos.
+O parâmetro `tipo` é obrigatório. Com `funcao=uma` e `id`, consulta um item; nos demais casos, a implementação lista os itens ativos.
 
 ### Parâmetros de consulta
 
