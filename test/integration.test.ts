@@ -13,5 +13,5 @@ describe.skipIf(!enabled)("public API integration", () => {
       service: "Central Macatuba - API Pública",
     });
     expect(typeof result.env).toBe("string");
-  });
+  }, 20_000);
 });
