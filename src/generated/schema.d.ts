@@ -133,7 +133,7 @@ export interface paths {
         };
         /**
          * verificar
-         * @description funcao=tudo lista os registros. funcao=uma exige id ou nome; se ambos faltarem, a implementação retorna um objeto de erro com HTTP 200.
+         * @description Consulta informações. funcao=tudo retorna lista paginada; funcao=uma exige id ou nome e retorna um registro. Parâmetros inválidos retornam HTTP 400 e registro inexistente HTTP 404.
          */
         get: operations["informacoes_verificar"];
         put?: never;
@@ -157,7 +157,7 @@ export interface paths {
         };
         /**
          * pesquisar
-         * @description O parâmetro q não vazio é necessário para obter resultados; quando omitido ou vazio, a implementação atual retorna um objeto de erro com HTTP 200. O filtro aceita criador, titulo, subtitulo, conteudo; outros valores caem no comportamento de pesquisa em todos os campos.
+         * @description Pesquisa notícias. q é obrigatório e não pode ser vazio; filtro aceita criador, titulo, subtitulo, conteudo ou tudo. page e limit controlam a página atual.
          */
         get: operations["jornal_pesquisar"];
         put?: never;
@@ -181,7 +181,7 @@ export interface paths {
         };
         /**
          * verificar
-         * @description funcao=uma consulta uma notícia e usa id como inteiro positivo; outros valores de funcao seguem o caminho de listagem de todas as notícias.
+         * @description funcao=todas retorna notícias paginadas; funcao=uma com id positivo retorna uma notícia. Parâmetros inválidos retornam HTTP 400 e notícia inexistente HTTP 404.
          */
         get: operations["jornal_verificar"];
         put?: never;
@@ -253,7 +253,7 @@ export interface paths {
         };
         /**
          * pesquisar
-         * @description O parâmetro q não vazio é necessário para obter resultados; quando omitido ou vazio, a implementação atual retorna um objeto de erro com HTTP 200. O filtro aceita nome, tipo, criador e descricao; outros valores caem no comportamento de pesquisa em todos os campos.
+         * @description Pesquisa pontos do mapa por termo e campo ou consulta diretamente a área visível. Aceita bounding box opcional (min_lat, min_lng, max_lat, max_lng), enviada completa, para limitar os resultados. Sem q, a bounding box é obrigatória. O zoom deve estar entre 0 e 22 e, quando limit não é informado, ajusta o limite padrão da página: 20 (zoom 0–8), 50 (9–13) ou 100 (14–22).
          */
         get: operations["mapa_pesquisar"];
         put?: never;
@@ -277,7 +277,7 @@ export interface paths {
         };
         /**
          * verificar
-         * @description Consulta dados do mapa.
+         * @description Retorna mapas quando tipo=mapas (catálogo sem paginação); nos demais casos retorna pontos filtrados e paginados por page/limit. total representa o total filtrado e quantidade o tamanho da página.
          */
         get: operations["mapa_verificar"];
         put?: never;
@@ -325,7 +325,7 @@ export interface paths {
         };
         /**
          * verificar
-         * @description Lista novidades ou consulta uma novidade por id.
+         * @description funcao=tudo retorna novidades paginadas; funcao=uma com id positivo retorna um registro. Parâmetros inválidos retornam HTTP 400 e registro inexistente HTTP 404.
          */
         get: operations["novidades_verificar"];
         put?: never;
@@ -349,7 +349,7 @@ export interface paths {
         };
         /**
          * pesquisar
-         * @description Pesquisa páginas públicas.
+         * @description Pesquisa páginas por título ou slug. q é obrigatório e não pode ser vazio. page e limit controlam a paginação.
          */
         get: operations["paginas_pesquisar"];
         put?: never;
@@ -421,7 +421,7 @@ export interface paths {
         };
         /**
          * verificar
-         * @description funcao aceita tudo (padrão), uma ou pesquisar. Para uma, informe id ou nome; para pesquisar, informe termo. A implementação retorna HTTP 400 se os parâmetros condicionais estiverem ausentes e HTTP 422 se termo exceder 200 caracteres.
+         * @description Lista, consulta ou pesquisa serviços, conforme funcao. Listagens de tudo/pesquisar são paginadas; funcao=uma retorna um registro. Os filtros inválidos retornam códigos HTTP apropriados.
          */
         get: operations["servicos_verificar"];
         put?: never;
@@ -613,7 +613,7 @@ export interface paths {
         };
         /**
          * streaming / verificar
-         * @description tipo é obrigatório. funcao=uma com id consulta um item; nos demais casos a implementação lista os itens ativos.
+         * @description Lista itens ativos paginados ou consulta um item por ID. Tipos suportados: radio, tv, vod, camera e podcast.
          */
         get: operations["servicos_streaming_verificar"];
         put?: never;
@@ -685,7 +685,7 @@ export interface paths {
         };
         /**
          * verificar
-         * @description Consulta dados meteorológicos.
+         * @description Consulta dados meteorológicos com filtros opcionais source, start e end. A listagem usa paginação por page/limit; total representa o total filtrado e quantidade o tamanho da página. Datas aceitam YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS.
          */
         get: operations["tempo_verificar"];
         put?: never;
@@ -721,6 +721,30 @@ export interface paths {
          * @description O gateway aceita HEAD no health check e retorna HTTP 200 sem corpo; o endpoint não produz uma representação no método HEAD.
          */
         head: operations["head_api_publica_health"];
+        patch?: never;
+        trace?: never;
+    };
+    "/api/servicos/pesquisar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Pesquisar serviços do catálogo
+         * @description Lista e pesquisa o catálogo público de serviços. page começa em 1 e limit aceita de 1 a 100 (padrão 20).
+         */
+        get: operations["servicos_pesquisar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        /**
+         * HEAD — pesquisar serviços
+         * @description O gateway intercepta HEAD antes do encaminhamento e retorna HTTP 204 sem corpo, sem executar nem encaminhar o endpoint.
+         */
+        head: operations["head_servicos_pesquisar"];
         patch?: never;
         trace?: never;
     };
@@ -878,6 +902,10 @@ export interface operations {
             query?: {
                 /** @description Data do calendário no formato AAAA-MM-DD. Se omitida, o endpoint usa a data atual do servidor. */
                 data?: string;
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -885,9 +913,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Retorna a data consultada, o dia da semana, se é fim de semana e os eventos ativos daquela data. */
+            /** @description Retorna a data consultada, o dia da semana, se é fim de semana e os eventos ativos daquela data. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1015,7 +1055,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Com formato=json retorna ano e meses. Com formato=pdf ou png retorna arquivo binário no content-type correspondente; formatos não aceitos usam HTTP 400. */
+            /** @description Calendário anual no formato solicitado: JSON, PDF ou PNG. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1037,8 +1077,8 @@ export interface operations {
                             };
                         };
                     };
-                    "application/pdf": unknown;
-                    "image/png": unknown;
+                    "application/pdf": string;
+                    "image/png": string;
                 };
             };
             /** @description Caminho inválido detectado pelo gateway ou parâmetro inválido conforme a validação específica do endpoint. */
@@ -1270,6 +1310,10 @@ export interface operations {
             query?: {
                 p?: string;
                 filtro?: "nome" | "tipo" | "bairro" | "zona";
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -1277,9 +1321,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Lista informações que correspondem ao parâmetro p e ao filtro solicitado; sem p, o filtro pode retornar todos os registros. */
+            /** @description Lista informações que correspondem ao parâmetro p e ao filtro solicitado; sem p, o filtro pode retornar todos os registros. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1393,6 +1449,10 @@ export interface operations {
                 funcao?: "tudo" | "uma";
                 id?: number;
                 nome?: string;
+                /** @description Página da listagem (base 1). Padrão 1; ignorado em consultas individuais. */
+                page?: number;
+                /** @description Itens por página. Padrão 20; máximo 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -1400,9 +1460,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description funcao=tudo retorna uma lista; funcao=uma retorna um registro ou null, e parâmetros/função inválidos podem retornar objeto de erro com HTTP 200. */
+            /** @description funcao=tudo retorna uma lista; funcao=uma retorna um registro ou null, e parâmetros/função inválidos podem retornar objeto de erro com HTTP 200. Para listagens, os cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page informam a paginação. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de itens por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: "true" | "false";
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: "true" | "false";
                     [name: string]: unknown;
                 };
                 content: {
@@ -1518,6 +1590,10 @@ export interface operations {
                 /** @description Termo de pesquisa obrigatório e não vazio. */
                 q: string;
                 filtro?: "criador" | "titulo" | "subtitulo" | "conteudo" | "tudo";
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -1525,9 +1601,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Pesquisa. Com q não vazio, retorna o envelope de resultados; quando q está vazio ou ausente, o PHP retorna um objeto erro com HTTP 200. */
+            /** @description Retorna o envelope de resultados da pesquisa. q ausente ou vazio retorna HTTP 400. A paginação é informada nos cabeçalhos de resposta. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -1540,8 +1628,6 @@ export interface operations {
                         resultados: {
                             [key: string]: unknown;
                         }[];
-                    } | {
-                        erro: string;
                     };
                 };
             };
@@ -1649,6 +1735,10 @@ export interface operations {
             query?: {
                 funcao?: "todas" | "uma";
                 id?: number;
+                /** @description Página da listagem (base 1). Padrão 1; ignorado em consultas individuais. */
+                page?: number;
+                /** @description Itens por página. Padrão 20; máximo 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -1656,9 +1746,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description funcao=todas lista notícias; funcao=uma com id positivo retorna uma notícia. O formato dos campos de notícia depende dos registros. */
+            /** @description funcao=todas lista notícias; funcao=uma com id positivo retorna uma notícia. O formato dos campos de notícia depende dos registros. Para listagens, os cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page informam a paginação. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de itens por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: "true" | "false";
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: "true" | "false";
                     [name: string]: unknown;
                 };
                 content: {
@@ -1772,6 +1874,10 @@ export interface operations {
         parameters: {
             query?: {
                 termo?: string;
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -1779,9 +1885,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Lista links cujo nome ou URL corresponde ao termo informado; sem termo, retorna uma lista vazia. */
+            /** @description Retorna os links correspondentes como array JSON. Se termo estiver vazio, retorna array vazio; os cabeçalhos de paginação indicam total zero. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2031,10 +2149,24 @@ export interface operations {
     };
     mapa_pesquisar: {
         parameters: {
-            query: {
-                /** @description Termo de pesquisa obrigatório e não vazio. */
-                q: string;
+            query?: {
+                /** @description Termo opcional. Se omitido, é obrigatório informar a bounding box completa para consultar os pontos da área visível. */
+                q?: string;
                 filtro?: "nome" | "tipo" | "criador" | "descricao" | "tudo";
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de pontos por página. Máximo: 100. Quando omitido, o valor padrão depende do zoom. */
+                limit?: number;
+                /** @description Latitude mínima do retângulo visível. Deve ser enviada junto com os outros três limites. */
+                min_lat?: number;
+                /** @description Longitude mínima do retângulo visível. Deve ser enviada junto com os outros três limites. */
+                min_lng?: number;
+                /** @description Latitude máxima do retângulo visível. */
+                max_lat?: number;
+                /** @description Longitude máxima do retângulo visível. */
+                max_lng?: number;
+                /** @description Nível de zoom Leaflet/MapLibre entre 0 e 22. Quando limit não é informado, ajusta o tamanho padrão da página: 20 (zoom 0–8), 50 (9–13) ou 100 (14–22). */
+                zoom?: number;
             };
             header?: never;
             path?: never;
@@ -2042,9 +2174,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Pesquisa. Com q não vazio, retorna o envelope de resultados; quando q está vazio ou ausente, o PHP retorna um objeto erro com HTTP 200. */
+            /** @description Retorna pontos encontrados e o total de registros que correspondem à pesquisa e à bounding box, quando fornecida. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2053,12 +2197,12 @@ export interface operations {
                         sucesso: true;
                         pesquisa: string;
                         filtro: string;
+                        zoom: number;
                         quantidade: number;
+                        total: number;
                         resultados: {
                             [key: string]: unknown;
                         }[];
-                    } | {
-                        erro: string;
                     };
                 };
             };
@@ -2167,6 +2311,10 @@ export interface operations {
                 tipo?: string;
                 criador?: string;
                 verificado?: string;
+                /** @description Página da listagem (base 1). Padrão 1; ignorado em consultas individuais. */
+                page?: number;
+                /** @description Itens por página. Padrão 20; máximo 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -2174,9 +2322,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Retorna mapas quando tipo=mapas; nos demais casos retorna pontos filtrados, sempre no envelope status/cidade/total/dados. */
+            /** @description Retorna mapas quando tipo=mapas; nos demais casos retorna pontos filtrados, sempre no envelope status/cidade/total/dados. Para listagens, os cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page informam a paginação. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de itens por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: "true" | "false";
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: "true" | "false";
                     [name: string]: unknown;
                 };
                 content: {
@@ -2189,6 +2349,12 @@ export interface operations {
                         dados: {
                             [key: string]: unknown;
                         }[];
+                        quantidade?: number;
+                        paginacao?: {
+                            pagina: number;
+                            limite: number;
+                            total: number;
+                        };
                     };
                 };
             };
@@ -2296,6 +2462,10 @@ export interface operations {
             query?: {
                 /** @description Termo opcional de pesquisa. O endpoint aceita até 200 caracteres; valores maiores retornam HTTP 422. */
                 q?: string;
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -2303,9 +2473,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Retorna uma lista de novidades que correspondem ao termo q; o PHP permite no máximo 200 caracteres. */
+            /** @description Retorna uma lista de novidades que correspondem ao termo q; o PHP permite no máximo 200 caracteres. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2431,6 +2613,10 @@ export interface operations {
             query?: {
                 funcao?: "tudo" | "uma";
                 id?: number;
+                /** @description Página da listagem (base 1). Padrão 1; ignorado em consultas individuais. */
+                page?: number;
+                /** @description Itens por página. Padrão 20; máximo 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -2438,9 +2624,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description funcao=tudo retorna uma lista; funcao=uma com id válido retorna um registro. Erros de parâmetro, ausência do registro e falhas internas usam códigos HTTP próprios. */
+            /** @description funcao=tudo retorna uma lista; funcao=uma com id válido retorna um registro. Erros de parâmetro, ausência do registro e falhas internas usam códigos HTTP próprios. Para listagens, os cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page informam a paginação. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de itens por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: "true" | "false";
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: "true" | "false";
                     [name: string]: unknown;
                 };
                 content: {
@@ -2554,6 +2752,10 @@ export interface operations {
         parameters: {
             query?: {
                 q?: string;
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -2561,9 +2763,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Pesquisa de páginas. Sem q, o PHP retorna status=false; com q, retorna total e resultados. */
+            /** @description Retorna total de correspondências e os resultados da página solicitada. A paginação detalhada também é informada nos cabeçalhos de resposta. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2952,6 +3166,10 @@ export interface operations {
                 id?: number;
                 nome?: string;
                 termo?: string;
+                /** @description Página da listagem (base 1). Padrão 1; ignorado em consultas individuais. */
+                page?: number;
+                /** @description Itens por página. Padrão 20; máximo 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -2959,9 +3177,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Lista, consulta ou pesquisa serviços, conforme funcao. O formato de sucesso é uma lista para tudo/pesquisar e um objeto para uma. */
+            /** @description Lista, consulta ou pesquisa serviços, conforme funcao. O formato de sucesso é uma lista para tudo/pesquisar e um objeto para uma. Para listagens, os cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page informam a paginação. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de itens por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: "true" | "false";
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: "true" | "false";
                     [name: string]: unknown;
                 };
                 content: {
@@ -3091,6 +3321,10 @@ export interface operations {
                 categoria?: string;
                 nivel?: string;
                 campo?: "titulo" | "descricao" | "conteudo" | "todos";
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -3098,9 +3332,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Retorna cursos públicos filtrados, no envelope status/total/itens. */
+            /** @description Retorna cursos públicos filtrados, no envelope status/total/itens. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -3346,6 +3592,10 @@ export interface operations {
                 categoria?: string;
                 q?: string;
                 campo?: "nome" | "descricao" | "conteudo" | "data_criacao" | "data_atualizacao" | "todos";
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -3353,9 +3603,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Retorna documentos públicos filtrados, no envelope status/total/itens. */
+            /** @description Retorna documentos públicos filtrados, no envelope status/total/itens. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -3598,6 +3860,10 @@ export interface operations {
             query?: {
                 q?: string;
                 campo?: "tudo" | "titulo" | "slug" | "descricao_curta" | "descricao_longa";
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -3605,9 +3871,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Retorna jogos correspondentes aos filtros de pesquisa. */
+            /** @description Retorna jogos correspondentes aos filtros de pesquisa. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -3851,7 +4129,12 @@ export interface operations {
             query: {
                 tipo: "radio" | "tv" | "vod" | "camera" | "podcast";
                 p?: string;
+                /** @description Campo usado na pesquisa. Os valores válidos dependem do parâmetro tipo: radio e podcast aceitam nome, descricao_curta, descricao_longa e tipo; tv aceita nome, descricao_curta, descricao_longa, categoria e qualidade; vod aceita nome, descricao_curta, descricao_longa, categoria e classificacao; camera aceita nome, descricao_longa e tipo_stream. O valor tudo (padrão) pesquisa em todos os campos disponíveis para o tipo selecionado. */
                 filtro?: "nome" | "descricao_curta" | "descricao_longa" | "tipo" | "categoria" | "qualidade" | "classificacao" | "tipo_stream" | "tudo";
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -3859,9 +4142,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Retorna os registros ativos que correspondem à busca. Os campos usados na pesquisa dependem do tipo de streaming e do filtro; filtro=tudo usa as colunas pesquisáveis existentes para aquele tipo. */
+            /** @description Retorna os registros ativos que correspondem à busca. Os campos usados na pesquisa dependem do tipo de streaming e do filtro; filtro=tudo usa as colunas pesquisáveis existentes para aquele tipo. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -3985,6 +4280,10 @@ export interface operations {
                 tipo: "radio" | "tv" | "vod" | "camera" | "podcast";
                 funcao?: "tudo" | "uma";
                 id?: number;
+                /** @description Página da listagem (base 1). Padrão 1; ignorado em consultas individuais. */
+                page?: number;
+                /** @description Itens por página. Padrão 20; máximo 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -3992,9 +4291,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Lista itens ativos ou consulta um item por ID. Tipos suportados: radio, tv, vod, camera e podcast. */
+            /** @description Lista itens ativos ou consulta um item por ID. Tipos suportados: radio, tv, vod, camera e podcast. Para listagens, os cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page informam a paginação. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de itens por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: "true" | "false";
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: "true" | "false";
                     [name: string]: unknown;
                 };
                 content: {
@@ -4005,6 +4316,11 @@ export interface operations {
                             [key: string]: unknown;
                         }[] | {
                             [key: string]: unknown;
+                        };
+                        pagination?: {
+                            page: number;
+                            limit: number;
+                            total: number;
                         };
                     };
                 };
@@ -4247,19 +4563,36 @@ export interface operations {
     };
     sos_listar_alertas: {
         parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: {
-                /** @description Cookie consultado pelo endpoint para preencher notificacaoAceita; o valor granted resulta em true. */
-                "centralmacatuba_sos-permissao"?: string;
+            query?: {
+                /** @description Número da página (base 1). Padrão: 1. */
+                page?: number;
+                /** @description Quantidade máxima de registros por página. Padrão: 20; máximo: 100. */
+                limit?: number;
             };
+            header?: {
+                /** @description Indica a preferência de notificação SOS do cliente. Envie exatamente `granted` para que `notificacaoAceita` seja true; valores ausentes ou diferentes resultam em false. */
+                "X-CM-SOS-PERMISSION"?: "granted";
+            };
+            path?: never;
+            cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Lista alertas SOS e informa se o cookie de permissão de notificação está marcado como granted. */
+            /** @description Lista alertas SOS e informa se o cliente declarou a preferência de notificação por meio do header X-CM-SOS-PERMISSION. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de registros por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Quantidade total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
                     [name: string]: unknown;
                 };
                 content: {
@@ -4377,10 +4710,14 @@ export interface operations {
             query?: {
                 /** @description Filtra os registros pela origem (source) armazenada no banco. */
                 source?: string;
-                /** @description Limite inferior opcional para timestamp, inclusivo. Use o formato armazenado pelo serviço, normalmente AAAA-MM-DD HH:MM:SS. */
+                /** @description Data/hora inclusiva no formato YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS. */
                 start?: string;
-                /** @description Limite superior opcional para timestamp, inclusivo. Use o formato armazenado pelo serviço, normalmente AAAA-MM-DD HH:MM:SS. */
+                /** @description Data/hora inclusiva no formato YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS. */
                 end?: string;
+                /** @description Página da listagem (base 1). Padrão 1; ignorado em consultas individuais. */
+                page?: number;
+                /** @description Itens por página. Padrão 20; máximo 100. */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -4388,9 +4725,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Consulta dados meteorológicos. Falhas de banco são respondidas com HTTP 500. */
+            /** @description Consulta dados meteorológicos. Falhas de banco são respondidas com HTTP 500. Para listagens, os cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page informam a paginação. */
             200: {
                 headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de itens por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Total de registros que correspondem aos filtros. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: "true" | "false";
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: "true" | "false";
                     [name: string]: unknown;
                 };
                 content: {
@@ -4403,6 +4752,12 @@ export interface operations {
                         dados: {
                             [key: string]: unknown;
                         }[];
+                        quantidade: number;
+                        paginacao: {
+                            pagina: number;
+                            limite: number;
+                            total: number;
+                        };
                     };
                 };
             };
@@ -4542,6 +4897,165 @@ export interface operations {
         responses: {
             /** @description Health check consultado com HEAD; resposta sem corpo. */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    servicos_pesquisar: {
+        parameters: {
+            query?: {
+                /** @description Termo opcional de pesquisa. */
+                q?: string;
+                /** @description Campo de pesquisa; padrão tudo. */
+                campo?: "tudo" | "nome" | "titulo" | "descricao_curta" | "descricao_longa";
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista paginada de serviços. */
+            200: {
+                headers: {
+                    /** @description Página atual (base 1). */
+                    "X-Page"?: number;
+                    /** @description Quantidade máxima de itens por página. */
+                    "X-Per-Page"?: number;
+                    /** @description Total de registros correspondentes ao filtro. */
+                    "X-Total-Count"?: number;
+                    /** @description Quantidade total de páginas. */
+                    "X-Total-Pages"?: number;
+                    /** @description Indica se existe próxima página. */
+                    "X-Has-Next-Page"?: boolean;
+                    /** @description Indica se existe página anterior. */
+                    "X-Has-Previous-Page"?: boolean;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        status: "sucesso";
+                        data: {
+                            id?: number;
+                            nome?: string;
+                            titulo?: string;
+                            descricao_curta?: string | null;
+                            descricao_longa?: string | null;
+                        }[];
+                        paginacao: {
+                            pagina?: number;
+                            limite?: number;
+                            total?: number;
+                            total_paginas?: number;
+                        };
+                    };
+                };
+            };
+            /** @description Caminho inválido detectado pelo gateway ou parâmetro inválido conforme a validação específica do endpoint. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    } | components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Domínio ou acesso não autorizado pelo gateway. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    } | components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Rota ou recurso não encontrado. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    } | components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Método não permitido para a operação de consulta. O endpoint aceita GET; o gateway trata HEAD separadamente, sem encaminhar a consulta. */
+            405: {
+                headers: {
+                    /** @description Métodos HTTP permitidos. */
+                    Allow?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    } | components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Termo de pesquisa excede 200 caracteres. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Erro interno no endpoint PHP ou no serviço de dados. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    } | components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Falha do gateway ao encaminhar a requisição ao serviço privado. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    } | components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Resposta de erro. O código HTTP e o formato do corpo dependem do endpoint e da condição de erro. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    } | components["schemas"]["ApiErrorResponse"];
+                };
+            };
+        };
+    };
+    head_servicos_pesquisar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HEAD tratado diretamente pelo gateway; nenhuma representação é retornada e o endpoint não é executado. */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
