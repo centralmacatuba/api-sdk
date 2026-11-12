@@ -117,6 +117,17 @@ for (const [route, pathItem] of Object.entries(contract.paths ?? {})) {
     lines.push("");
   }
 
+  const headerParameters = (operation.parameters ?? []).filter((parameter) => parameter.in === "header");
+  if (headerParameters.length) {
+    lines.push("### Cabeçalhos da requisição", "", "| Cabeçalho | Obrigatório | Tipo | Descrição |", "|---|---:|---|---|");
+    for (const parameter of headerParameters) {
+      lines.push(
+        `| \`${escapeCell(parameter.name)}\` | ${parameter.required ? "Sim" : "Não"} | ${escapeCell(schemaType(parameter.schema))} | ${escapeCell(formatDescription(parameter.description ?? parameter.schema?.description))} |`,
+      );
+    }
+    lines.push("");
+  }
+
   const success = operation.responses?.["200"];
   if (success?.description) lines.push("### Resposta de sucesso (HTTP 200)", "", formatDescription(success.description), "");
 
