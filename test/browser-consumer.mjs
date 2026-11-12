@@ -230,7 +230,7 @@ try {
     hasNextPage: "true",
     hasPreviousPage: "false",
   });
-  assert.equal(result.sos.success, true);
+  assert.equal(result.sos.data.success, true);
   assert.equal(seen.sosHeader, "granted");
   assert.ok(seen.preflight >= 1, "o navegador deveria executar CORS preflight para o header SOS");
   assert.match(seen.preflightHeaders, /x-cm-sos-permission/i);
