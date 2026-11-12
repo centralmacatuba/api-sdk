@@ -40,10 +40,10 @@ Para voltar ao npm Registry, remova a configuração de escopo ou altere o desti
 ## Requisitos
 
 - Node.js 18 ou superior para consumo do pacote.
-- Navegador com suporte à Fetch API, quando utilizado no browser.
+- Navegador com suporte à Fetch API.
 - TypeScript é opcional; as declarações de tipos são distribuídas com o pacote.
 
-A suíte completa de desenvolvimento usa Node.js 20 ou superior por causa da versão do Vitest. Isso não altera o requisito de runtime da SDK.
+A suíte completa de desenvolvimento usa Node.js 20 ou superior devido à versão do Vitest. Isso não altera o requisito de runtime da SDK.
 
 ## Uso durante o desenvolvimento
 
