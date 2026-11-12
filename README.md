@@ -80,7 +80,7 @@ const api = new CentralMacatubaSDK({
 
 - URL padrão do gateway oficial da API pública.
 - Fetch API nativa, sem Axios ou dependências de runtime.
-- Node.js 18+ e navegadores com Fetch API. A compatibilidade de consumo é validada em Node.js 18.
+- Node.js 18+ e navegadores com Fetch API. A compatibilidade de consumo é validada em Node.js 18 e Chromium.
 - Builds ESM e CommonJS e declarações TypeScript.
 - Cada chamada aceita `{ signal, timeoutMs, headers, credentials }` como opções.
 - `requestWithMetadata()` retorna os dados analisados junto com status, URL e cabeçalhos HTTP, permitindo ler os metadados de paginação; `request()` mantém o retorno somente de dados.
@@ -163,6 +163,12 @@ CM_API_INTEGRATION=1 pnpm test:integration
 ```
 
 A suíte verifica o health check, a pesquisa do catálogo de serviços e seus cabeçalhos de paginação, a autorização SOS por cabeçalho e a geração de calendários PDF/PNG. Ela não roda junto dos testes unitários para que indisponibilidades externas não tornem a CI principal instável. O workflow **Public API integration** executa essa suíte semanalmente e também pode ser iniciado manualmente em Actions.
+
+### Teste em navegador real
+
+A CI também executa `pnpm test:browser` em Chromium por meio do Playwright, sem adicionar dependências de navegador ao runtime nem ao lockfile do pacote. O teste carrega o bundle ESM em uma página real e valida Fetch nativa, importação ESM, CORS preflight para o cabeçalho SOS, leitura dos cabeçalhos de paginação expostos por CORS e resposta binária PDF como `Blob`. As respostas HTTP são simuladas para isolar o SDK dos problemas e da disponibilidade da API externa; os testes de integração reais continuam separados.
+
+Para executar localmente, instale Playwright e Chromium e defina `PLAYWRIGHT_MODULE` com o caminho absoluto para `playwright/index.mjs` antes de executar `pnpm test:browser`.
 
 O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública. Após alterar esse contrato, execute `pnpm generate:types` e revise/registre `src/generated/schema.d.ts`. Para sincronizar os arquivos gerados pelo GitHub Actions, execute o workflow manual **Sync generated files** na branch de trabalho e selecione:
 
