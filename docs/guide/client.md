@@ -59,7 +59,7 @@ console.log(response.headers.get("X-Total-Pages"));
 console.log(response.headers.get("X-Has-Next-Page"));
 ```
 
-A propriedade `headers` é uma cópia dos cabeçalhos da resposta bem-sucedida. Use-a para navegação paginada, contagens e demais metadados documentados pelo OpenAPI. `request()` continua retornando apenas os dados analisados, sem alteração de comportamento.
+A propriedade `headers` é uma cópia dos cabeçalhos da resposta bem-sucedida. Use-a para navegação paginada, contagens e demais metadados documentados pelo OpenAPI. Consulte também o [guia de paginação](/guide/pagination). `request()` continua retornando apenas os dados analisados, sem alteração de comportamento.
 
 ## Allowlist
 
