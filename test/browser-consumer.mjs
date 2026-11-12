@@ -192,13 +192,26 @@ try {
       seen.sosHeader = requestHeaders["x-cm-sos-permission"] ?? null;
       body = { success: true, alertas: [], notificacaoAceita: true };
     } else if (url.pathname === "/api/calendario/gerar") {
-      seen.calendarQuery = Object.fromEntries(url.searchParams.entries());
-      headers = { ...corsHeaders, "content-type": "application/pdf" };
-      await route.fulfill({
-        status: 200,
-        headers,
-        body: "%PDF-1.4\nCentral Macatuba browser test\n%%EOF",
-      });
+      const formato = url.searchParams.get("formato");
+      seen.calendarFormats ??= [];
+      seen.calendarFormats.push(formato);
+      if (formato === "pdf") {
+        headers = { ...corsHeaders, "content-type": "application/pdf" };
+        await route.fulfill({
+          status: 200,
+          headers,
+          body: "%PDF-1.4\nCentral Macatuba browser test\n%%EOF",
+        });
+      } else if (formato === "png") {
+        headers = { ...corsHeaders, "content-type": "image/png" };
+        await route.fulfill({
+          status: 200,
+          headers,
+          body: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+        });
+      } else {
+        await route.fulfill({ status: 400, headers: corsHeaders, body: "Formato inválido" });
+      }
       return;
     } else {
       await route.fulfill({ status: 404, headers: corsHeaders, body: "Not found" });
@@ -232,17 +245,18 @@ try {
   assert.ok(seen.preflight >= 1, "o navegador deveria executar CORS preflight para o header SOS");
   assert.match(seen.preflightHeaders, /x-cm-sos-permission/i);
   assert.deepEqual(seen.searchQuery, { page: "1", limit: "2" });
-  assert.deepEqual(seen.calendarQuery, { ano: "2026", formato: "pdf" });
+  assert.deepEqual(seen.calendarFormats, ["pdf", "png"]);
   assert.deepEqual(result.calendar, {
     isBlob: true,
     type: "application/pdf",
     size: Buffer.byteLength("%PDF-1.4\nCentral Macatuba browser test\n%%EOF"),
   });
+  assert.deepEqual(result.calendarPng, { isBlob: true, type: "image/png", size: 8 });
   assert.deepEqual(pageErrors, []);
   assert.ok(seen.requests.some(({ path }) => path === "/api/servicos/pesquisar"));
   assert.ok(seen.requests.some(({ path }) => path === "/api/calendario/gerar"));
 
-  console.log("Teste real em Chromium aprovado: Fetch, ESM, CORS, paginação, header SOS e Blob PDF.");
+  console.log("Teste real em Chromium aprovado: Fetch, ESM, CORS, paginação, header SOS e Blobs PDF/PNG.");
 } finally {
   await browser?.close();
   if (server) {
