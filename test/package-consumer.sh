@@ -67,6 +67,7 @@ done
 echo "Consumo ESM, CommonJS, NodeNext e Node16 validado."
 
 # Browser-target ESM bundle smoke test.
+cd "$ROOT_DIR"
 BROWSER_DIR="$TEMP_DIR/browser"
 mkdir -p "$BROWSER_DIR"
 "$ROOT_DIR/node_modules/.bin/tsup" --config "$ROOT_DIR/tsup.browser.config.ts" --out-dir "$BROWSER_DIR"
