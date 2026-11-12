@@ -19,4 +19,4 @@ A SDK não consegue contornar bloqueios de CORS, políticas de cookies ou ausên
 
 ## Node.js
 
-A Fetch API do Node.js não mantém automaticamente um cookie jar entre chamadas. Para sessões persistentes, forneça uma implementação `fetch` que gerencie cookies de acordo com as necessidades do ambiente.
+A Fetch API do Node.js não mantém automaticamente um cookie jar entre chamadas. Para sessões persistentes, forneça uma implementação `fetch` que gerencie cookies conforme as necessidades do ambiente.
