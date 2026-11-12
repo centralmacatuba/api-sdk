@@ -46,6 +46,7 @@ export const PUBLIC_ENDPOINTS = Object.freeze([
   "/api/paginas/verificar",
   "/api/redicionador/verificar",
   "/api/servicos/verificar",
+  "/api/servicos/pesquisar",
   "/api/servicos/cursos/pesquisar",
   "/api/servicos/cursos/verificar",
   "/api/servicos/docs/pesquisar",
