@@ -26,7 +26,7 @@ O domínio personalizado é:
 
 Essa ordem é importante para associar o domínio à sua conta antes de apontá-lo para o GitHub Pages, reduzindo o risco de apropriação por terceiros.
 
-Depois de salvar o domínio no GitHub, crie o registro na zona DNS `centralmacatuba.qzz.io`:
+Após salvar o domínio no GitHub, crie o registro na zona DNS `centralmacatuba.qzz.io`:
 
 | Tipo | Nome | Destino |
 |---|---|---|
@@ -52,4 +52,4 @@ O arquivo `docs/public/CNAME` mantém o nome do domínio no artefato publicado, 
 4. Na branch `principal`, configura o Pages e envia o artefato.
 5. O job de deploy publica o artefato no ambiente `github-pages`.
 
-Pull requests e branches de trabalho validam o build, mas não publicam o site.
+O build é validado em pull requests e branches de trabalho. A publicação do site ocorre apenas na branch `principal`.
