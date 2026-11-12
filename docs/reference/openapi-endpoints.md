@@ -128,7 +128,7 @@ Pesquisa informações públicas.
 
 ### Resposta de sucesso (HTTP 200)
 
-Lista informações que correspondem ao parâmetro p e ao filtro solicitado; sem p, o filtro pode retornar todos os registros.
+Lista informações que correspondem ao parâmetro `p` e ao filtro solicitado. Quando `p` não é informado, o filtro pode retornar todos os registros.
 
 ### Respostas adicionais
 
@@ -145,7 +145,7 @@ Lista informações que correspondem ao parâmetro p e ao filtro solicitado; sem
 
 **verificar**
 
-funcao=tudo lista os registros. funcao=uma exige id ou nome; se ambos faltarem, a implementação retorna um objeto de erro com HTTP 200.
+Com `funcao=tudo`, lista os registros. Com `funcao=uma`, exige `id` ou `nome`; se ambos faltarem, a implementação retorna um objeto de erro com HTTP 200.
 
 ### Parâmetros de consulta
 
@@ -157,7 +157,7 @@ funcao=tudo lista os registros. funcao=uma exige id ou nome; se ambos faltarem, 
 
 ### Resposta de sucesso (HTTP 200)
 
-funcao=tudo retorna uma lista; funcao=uma retorna um registro ou null, e parâmetros/função inválidos podem retornar objeto de erro com HTTP 200.
+Com `funcao=tudo`, retorna uma lista. Com `funcao=uma`, retorna um registro ou null. Parâmetros ou valores de função inválidos podem resultar em um objeto de erro com HTTP 200.
 
 ### Respostas adicionais
 
@@ -174,7 +174,7 @@ funcao=tudo retorna uma lista; funcao=uma retorna um registro ou null, e parâme
 
 **pesquisar**
 
-O parâmetro q não vazio é necessário para obter resultados; quando omitido ou vazio, a implementação atual retorna um objeto de erro com HTTP 200. O filtro aceita criador, titulo, subtitulo, conteudo; outros valores caem no comportamento de pesquisa em todos os campos.
+O parâmetro `q` deve conter um termo não vazio para obter resultados. Quando omitido ou vazio, a implementação atual retorna um objeto de erro com HTTP 200. O filtro aceita os valores `criador`, `titulo`, `subtitulo` e `conteudo`; outros valores acionam a pesquisa em todos os campos.
 
 ### Parâmetros de consulta
 
@@ -185,7 +185,7 @@ O parâmetro q não vazio é necessário para obter resultados; quando omitido o
 
 ### Resposta de sucesso (HTTP 200)
 
-Pesquisa. Com q não vazio, retorna o envelope de resultados; quando q está vazio ou ausente, o PHP retorna um objeto erro com HTTP 200.
+Quando `q` não está vazio, retorna o envelope de resultados. Quando está vazio ou ausente, o PHP retorna um objeto de erro com HTTP 200.
 
 ### Respostas adicionais
 
@@ -202,7 +202,7 @@ Pesquisa. Com q não vazio, retorna o envelope de resultados; quando q está vaz
 
 **verificar**
 
-funcao=uma consulta uma notícia e usa id como inteiro positivo; outros valores de funcao seguem o caminho de listagem de todas as notícias.
+Com `funcao=uma`, consulta uma notícia e usa `id` como inteiro positivo. Outros valores de `funcao` seguem o caminho de listagem de todas as notícias.
 
 ### Parâmetros de consulta
 
@@ -213,7 +213,7 @@ funcao=uma consulta uma notícia e usa id como inteiro positivo; outros valores 
 
 ### Resposta de sucesso (HTTP 200)
 
-funcao=todas lista notícias; funcao=uma com id positivo retorna uma notícia. O formato dos campos de notícia depende dos registros.
+Com `funcao=todas`, retorna a lista de notícias. Com `funcao=uma` e `id` positivo, retorna uma notícia. O formato dos campos depende dos registros.
 
 ### Respostas adicionais
 
@@ -408,7 +408,7 @@ Pesquisa páginas públicas.
 
 ### Resposta de sucesso (HTTP 200)
 
-Pesquisa de páginas. Sem q, o PHP retorna status=false; com q, retorna total e resultados.
+Pesquisa páginas. Sem o parâmetro `q`, o PHP retorna `status=false`; com `q`, retorna o total e os resultados.
 
 ### Respostas adicionais
 
@@ -693,7 +693,7 @@ tipo é obrigatório. filtro seleciona um campo de pesquisa conforme o tipo: rad
 
 ### Resposta de sucesso (HTTP 200)
 
-Retorna os registros ativos que correspondem à busca. Os campos usados na pesquisa dependem do tipo de streaming e do filtro; filtro=tudo usa as colunas pesquisáveis existentes para aquele tipo.
+Retorna os registros ativos que correspondem à busca. Os campos pesquisados dependem do tipo de streaming e do filtro. Com `filtro=tudo`, são usadas as colunas pesquisáveis disponíveis para aquele tipo.
 
 ### Respostas adicionais
 
