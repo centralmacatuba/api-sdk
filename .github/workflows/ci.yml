@@ -45,8 +45,8 @@ jobs:
       - name: Generate OpenAPI types
         run: pnpm generate:types
 
-      - name: Verify generated types exist
-        run: test -s src/generated/schema.d.ts
+      - name: Verify generated types are unchanged
+        run: git diff --exit-code -- src/generated/schema.d.ts
 
       - name: Typecheck
         run: pnpm typecheck
@@ -98,10 +98,8 @@ jobs:
       - name: Verify generated types are tracked
         run: git ls-files --error-unmatch -- src/generated/schema.d.ts
 
-      - name: Verify generated types exist
-        run: test -s src/generated/schema.d.ts
-
-      - name: Typecheck
+      - name: Verify generated types are unchanged
+        run: git diff --exit-code -- src/generated/schema.d.ts
         run: pnpm typecheck
 
       - name: Tests
