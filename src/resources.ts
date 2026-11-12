@@ -47,6 +47,7 @@ export function createResources(client: CentralMacatuba) {
     redicionador: { verificar: bind(client, "/api/redicionador/verificar") },
     servicos: {
       verificar: bind(client, "/api/servicos/verificar"),
+      pesquisar: bind(client, "/api/servicos/pesquisar"),
       cursos: {
         pesquisar: bind(client, "/api/servicos/cursos/pesquisar"),
         verificar: bind(client, "/api/servicos/cursos/verificar"),
