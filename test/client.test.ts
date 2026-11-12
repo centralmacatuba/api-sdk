@@ -200,6 +200,12 @@ describe("CentralMacatuba", () => {
       () => new CentralMacatuba({ baseUrl: "https://user:pass@example.com", fetch: vi.fn() }),
     ).toThrow(CentralMacatubaError);
 
+    for (const baseUrl of ["https://example.com?", "https://example.com#"]) {
+      expect(
+        () => new CentralMacatuba({ baseUrl, fetch: vi.fn() }),
+      ).toThrow(CentralMacatubaError);
+    }
+
     for (const timeoutMs of [-1, Number.NaN, Number.POSITIVE_INFINITY, 2_147_483_648]) {
       expect(
         () => new CentralMacatuba({ timeoutMs, fetch: vi.fn() }),
