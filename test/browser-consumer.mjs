@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const playwrightModule = process.env.PLAYWRIGHT_MODULE;
 if (!playwrightModule) {
@@ -14,7 +14,7 @@ if (!playwrightModule) {
 }
 
 const { chromium } = await import(pathToFileURL(resolve(playwrightModule)).href);
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const tempDir = await mkdtemp(join(tmpdir(), "centralmacatuba-browser-"));
 const bundleDir = join(tempDir, "bundle");
 const bundlePath = join(bundleDir, "index.js");
@@ -24,10 +24,8 @@ let server;
 
 try {
   const build = spawnSync(
-    process.execPath,
-    [join(root, "node_modules", "tsup", "dist", "cli-default.js"),
-      "--config", join(root, "tsup.browser.config.ts"),
-      "--out-dir", bundleDir],
+    join(root, "node_modules", ".bin", "tsup"),
+    ["--config", join(root, "tsup.browser.config.ts"), "--out-dir", bundleDir],
     { cwd: root, encoding: "utf8" },
   );
 
@@ -90,7 +88,7 @@ try {
   </body>
 </html>`;
 
-  const seen = { preflight: 0, sosHeader: null, requests: [] };
+  const seen = { preflight: 0, preflightHeaders: null, sosHeader: null, searchQuery: null, calendarQuery: null, requests: [] };
   server = createServer(async (request, response) => {
     if (request.url === "/") {
       response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
@@ -143,6 +141,7 @@ try {
 
     if (request.method() === "OPTIONS") {
       seen.preflight += 1;
+      seen.preflightHeaders = requestHeaders["access-control-request-headers"] ?? "";
       await route.fulfill({
         status: 204,
         headers: {
@@ -166,8 +165,7 @@ try {
         env: "browser-test",
       };
     } else if (url.pathname === "/api/servicos/pesquisar") {
-      assert.equal(url.searchParams.get("page"), "1");
-      assert.equal(url.searchParams.get("limit"), "2");
+      seen.searchQuery = Object.fromEntries(url.searchParams.entries());
       body = {
         status: "sucesso",
         data: [{ id: "servico-teste" }],
@@ -185,8 +183,7 @@ try {
       seen.sosHeader = requestHeaders["x-cm-sos-permission"] ?? null;
       body = { success: true, alertas: [], notificacaoAceita: true };
     } else if (url.pathname === "/api/calendario/gerar") {
-      assert.equal(url.searchParams.get("ano"), "2026");
-      assert.equal(url.searchParams.get("formato"), "pdf");
+      seen.calendarQuery = Object.fromEntries(url.searchParams.entries());
       headers = { ...corsHeaders, "content-type": "application/pdf" };
       await route.fulfill({
         status: 200,
@@ -224,6 +221,9 @@ try {
   assert.equal(result.sos.success, true);
   assert.equal(seen.sosHeader, "granted");
   assert.ok(seen.preflight >= 1, "o navegador deveria executar CORS preflight para o header SOS");
+  assert.match(seen.preflightHeaders, /x-cm-sos-permission/i);
+  assert.deepEqual(seen.searchQuery, { page: "1", limit: "2" });
+  assert.deepEqual(seen.calendarQuery, { ano: "2026", formato: "pdf" });
   assert.deepEqual(result.calendar, {
     isBlob: true,
     type: "application/pdf",
