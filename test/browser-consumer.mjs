@@ -64,6 +64,10 @@ try {
           ano: 2026,
           formato: "pdf",
         });
+        const calendarPng = await api.calendario.gerar({
+          ano: 2026,
+          formato: "png",
+        });
 
         return {
           health,
@@ -81,6 +85,11 @@ try {
             isBlob: calendar instanceof Blob,
             type: calendar.type,
             size: calendar.size,
+          },
+          calendarPng: {
+            isBlob: calendarPng instanceof Blob,
+            type: calendarPng.type,
+            size: calendarPng.size,
           },
         };
       })();
