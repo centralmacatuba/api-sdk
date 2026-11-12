@@ -1,0 +1,9 @@
+pmOnFail: ignore
+
+allowBuilds:
+  esbuild: true
+
+overrides:
+  vite: ^6.4.1
+  esbuild: ^0.28.2
+

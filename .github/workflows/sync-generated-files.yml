@@ -1,6 +1,13 @@
 name: Sync generated files
 
 on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "openapi/openapi.json"
+      - "scripts/generate-docs-reference.mjs"
+      - ".github/workflows/sync-generated-files.yml"
   workflow_dispatch:
     inputs:
       scope:
@@ -42,20 +49,20 @@ jobs:
           node-version: 22
 
       - name: Setup pnpm
-        if: inputs.scope == 'code' || inputs.scope == 'all'
+        if: github.event_name == 'push' || inputs.scope == 'code' || inputs.scope == 'all'
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
           version: 12.12.1
           run_install: false
 
       - name: Install dependencies
-        if: inputs.scope == 'code' || inputs.scope == 'all'
+        if: github.event_name == 'push' || inputs.scope == 'code' || inputs.scope == 'all'
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Generate selected files and push
         env:
           GH_TOKEN: ${{ github.token }}
-          SYNC_SCOPE: ${{ inputs.scope }}
+          SYNC_SCOPE: ${{ github.event_name == 'push' && 'all' || inputs.scope }}
           BRANCH_NAME: ${{ github.ref_name }}
         shell: bash
         run: |
@@ -132,6 +139,10 @@ jobs:
           auth_header="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
           git -c http.extraheader="AUTHORIZATION: basic $auth_header" fetch origin "$BRANCH_NAME"
           git reset --hard FETCH_HEAD
+
+          if [[ "$SYNC_SCOPE" == "code" || "$SYNC_SCOPE" == "all" ]]; then
+            pnpm install --frozen-lockfile --ignore-scripts
+          fi
 
           generate_selected
           stage_selected
