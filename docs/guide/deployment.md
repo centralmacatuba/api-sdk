@@ -53,3 +53,8 @@ O arquivo `docs/public/CNAME` mantém o nome do domínio no artefato publicado, 
 5. O job de deploy publica o artefato no ambiente `github-pages`.
 
 O build é validado em pull requests e branches de trabalho. A publicação do site ocorre apenas na branch `principal`.
+
+
+## Publicação do pacote npm
+
+A publicação do pacote é independente do deploy da documentação. Antes de habilitar o workflow **Release**, configure o Trusted Publisher no npm para o repositório `centralmacatuba/api-sdk` e o arquivo de workflow `release.yml`. Habilite também **Allow npm publish** na configuração do Trusted Publisher e confirme que o workflow concede `id-token: write`. Em seguida, defina a variável de repositório `NPM_RELEASE_ENABLED=true`. A primeira versão `0.1.0` deve ser publicada pelo workflow com OIDC, não por uma publicação manual prévia.
