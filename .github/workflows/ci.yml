@@ -93,9 +93,9 @@ jobs:
           mkdir -p "$RUNNER_TEMP/cm-playwright"
           printf '{"private":true}\n' > "$RUNNER_TEMP/cm-playwright/package.json"
           pnpm --dir "$RUNNER_TEMP/cm-playwright" add --save-exact --ignore-scripts playwright@1.56.1
-          pnpm --dir "$RUNNER_TEMP/cm-playwright" exec playwright install --with-deps chromium
+          pnpm --dir "$RUNNER_TEMP/cm-playwright" exec playwright install --with-deps --only-shell chromium
 
-      - name: Test the browser bundle in Chromium
+      - name: Test the package ESM entry in Chromium
         run: pnpm test:browser
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/cm-playwright/node_modules/playwright/index.mjs
