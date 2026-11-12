@@ -1,22 +1,38 @@
-# Cookies e SOS
+# Autorização SOS
 
-O endpoint SOS utiliza o cookie `centralmacatuba_sos-permissao` quando aplicável. A SDK não tenta ler, criar ou modificar esse cookie: em navegadores, deixa a Fetch API gerenciar os cookies.
+O endpoint SOS recebe a preferência de notificação pelo cabeçalho `X-CM-SOS-PERMISSION`; não utiliza o cookie `centralmacatuba_sos-permissao`.
 
-## Requisições entre origens
-
-Se a aplicação e a API estiverem em origens diferentes e a chamada precisar enviar o cookie, configure credenciais:
+Envie exatamente `granted` quando o usuário tiver autorizado as notificações. Se o cabeçalho estiver ausente ou contiver outro valor, a API considera `notificacaoAceita` como `false`.
 
 ```ts
-const api = new CentralMacatubaSDK({ credentials: "include" });
-const alertas = await api.sos.listarAlertas();
+import { CentralMacatubaSDK } from "@centralmacatuba/api";
+
+const api = new CentralMacatubaSDK();
+
+const alertas = await api.sos.listarAlertas(
+  undefined,
+  {
+    headers: {
+      "X-CM-SOS-PERMISSION": "granted",
+    },
+  },
+);
 ```
 
-Também é possível configurar `credentials: "include"` somente na chamada.
+Também é possível configurar o cabeçalho nas opções padrão do cliente:
 
-O envio depende da configuração do servidor e das políticas do navegador. Para chamadas cross-origin com credenciais, o gateway precisa responder com uma origem explícita em CORS e `Access-Control-Allow-Credentials: true`. O cookie precisa ter atributos compatíveis com o contexto, incluindo `SameSite=None; Secure` quando a chamada for realmente cross-site.
+```ts
+const api = new CentralMacatubaSDK({
+  headers: { "X-CM-SOS-PERMISSION": "granted" },
+});
+```
 
-A SDK não consegue contornar bloqueios de CORS, políticas de cookies ou ausência de encaminhamento do cookie no gateway.
+A aplicação deve enviar `granted` somente depois de obter a autorização explícita do usuário. A SDK apenas encaminha o cabeçalho fornecido; ela não solicita, armazena nem presume consentimento.
+
+## Navegadores e CORS
+
+Se a aplicação e a API estiverem em origens diferentes, o servidor precisa permitir o cabeçalho `X-CM-SOS-PERMISSION` na configuração de CORS (por exemplo, em `Access-Control-Allow-Headers`). Não é necessário habilitar `credentials: "include"` para esse mecanismo de autorização, pois ele não depende de cookie.
 
 ## Node.js
 
-A Fetch API do Node.js não mantém automaticamente um cookie jar entre chamadas. Para sessões persistentes, forneça uma implementação `fetch` que gerencie cookies conforme as necessidades do ambiente.
+A Fetch API do Node.js aceita o cabeçalho normalmente. Não é necessário manter um cookie jar ou uma sessão entre chamadas para enviar a preferência SOS.
