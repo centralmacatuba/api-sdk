@@ -76,6 +76,10 @@ const descriptionRewrites = new Map([
     "tipo é obrigatório. funcao=uma com id consulta um item; nos demais casos a implementação lista os itens ativos.",
     "O parâmetro `tipo` é obrigatório. Com `funcao=uma` e `id`, consulta um item; nos demais casos, a implementação lista os itens ativos.",
   ],
+  [
+    "Lista alertas SOS e informa se o cliente declarou a preferência de notificação por meio do header X-CM-SOS-PERMISSION. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page.",
+    "Lista alertas SOS e informa se o cliente declarou a preferência de notificação por meio do cabeçalho `X-CM-SOS-PERMISSION`. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page.",
+  ],
 ]);
 
 function formatDescription(description) {
