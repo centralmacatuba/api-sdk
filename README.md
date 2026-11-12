@@ -166,7 +166,7 @@ A suíte verifica o health check, a pesquisa do catálogo de serviços e seus ca
 
 ### Teste em navegador real
 
-A CI também executa `pnpm test:browser` em Chromium por meio do Playwright, sem adicionar dependências de navegador ao runtime nem ao lockfile do pacote. O teste carrega o bundle ESM em uma página real e valida Fetch nativa, importação ESM, CORS preflight para o cabeçalho SOS, leitura dos cabeçalhos de paginação expostos por CORS e resposta binária PDF como `Blob`. As respostas HTTP são simuladas para isolar o SDK dos problemas e da disponibilidade da API externa; os testes de integração reais continuam separados.
+A CI também executa `pnpm test:browser` em Chromium por meio do Playwright, sem adicionar dependências de navegador ao runtime nem ao lockfile do pacote. O teste carrega o bundle ESM em uma página real e valida Fetch nativa, importação ESM, CORS preflight para o cabeçalho SOS, leitura dos cabeçalhos de paginação expostos por CORS e respostas binárias PDF/PNG como `Blob`. As respostas HTTP são simuladas para isolar o SDK dos problemas e da disponibilidade da API externa; os testes de integração reais continuam separados.
 
 Para executar localmente, instale Playwright e Chromium e defina `PLAYWRIGHT_MODULE` com o caminho absoluto para `playwright/index.mjs` antes de executar `pnpm test:browser`.
 
