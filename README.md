@@ -156,13 +156,13 @@ Para validar a compilação:
 pnpm docs:build
 ```
 
-Para executar a integração opcional com o health check do gateway real:
+Para executar os testes de integração contra a API pública real:
 
 ```bash
 CM_API_INTEGRATION=1 pnpm test:integration
 ```
 
-Esse teste não é executado na suíte padrão para evitar que indisponibilidades externas tornem o CI instável. Os testes unitários e os testes de tipos não dependem da API em produção.
+A suíte verifica o health check, a pesquisa do catálogo de serviços e seus cabeçalhos de paginação, a autorização SOS por cabeçalho e a geração de calendários PDF/PNG. Ela não roda junto dos testes unitários para que indisponibilidades externas não tornem a CI principal instável. O workflow **Public API integration** executa essa suíte semanalmente e também pode ser iniciado manualmente em Actions.
 
 O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública. Após alterar esse contrato, execute `pnpm generate:types` e revise/registre `src/generated/schema.d.ts`. Para sincronizar os arquivos gerados pelo GitHub Actions, execute o workflow manual **Sync generated files** na branch de trabalho e selecione:
 
@@ -182,7 +182,7 @@ pnpm changeset
 
 Selecione `patch`, `minor` ou `major` conforme o impacto da mudança e inclua o arquivo gerado em `.changeset/`. O workflow **Release** na branch `principal` reúne as alterações em um PR de versionamento. Depois da revisão e do merge desse PR, o workflow valida e publica a versão no npm Registry e no GitHub Packages, cria a tag Git e registra a GitHub Release. A publicação no GitHub Packages é reconciliada pela versão exata disponível no npm, de modo que uma nova execução possa completar uma publicação parcial sem tentar publicar novamente a mesma versão.
 
-A publicação no npm usa Trusted Publishing (OIDC), sem token permanente. Configure o Trusted Publisher para o repositório `centralmacatuba/api-sdk` e para o workflow `release.yml`. O workflow permanece desabilitado até a variável de repositório `NPM_RELEASE_ENABLED` receber o valor `true`. Primeiro publique manualmente a versão inicial do pacote no npm, configure e teste o Trusted Publisher e, só então, habilite essa variável para as próximas versões. Se o Trusted Publisher tiver sido configurado a partir de 3 de setembro de 2026, confira também se a opção **Allow npm publish** está habilitada; sem ela, o fluxo `changeset publish` não poderá executar `npm publish`.
+A publicação no npm usa Trusted Publishing (OIDC), sem token permanente. Configure o Trusted Publisher para o repositório `centralmacatuba/api-sdk` e para o workflow `release.yml`. O workflow permanece desabilitado até a variável de repositório `NPM_RELEASE_ENABLED` receber o valor `true`. Antes da primeira publicação, configure o Trusted Publisher no npm para o repositório `centralmacatuba/api-sdk` e o workflow `release.yml`, habilite **Allow npm publish** e confira as permissões do workflow. Depois, habilite `NPM_RELEASE_ENABLED=true`. A primeira publicação da versão `0.1.0` deverá ocorrer pelo próprio workflow usando OIDC; não publique manualmente a mesma versão, pois isso impediria validar o fluxo de Trusted Publishing para essa versão. Se o Trusted Publisher tiver sido configurado a partir de 3 de setembro de 2026, confira também se a opção **Allow npm publish** está habilitada; sem ela, o fluxo `changeset publish` não poderá executar `npm publish`.
 
 O pacote do GitHub Packages pode exigir ajuste de visibilidade após a primeira publicação. Se a intenção for disponibilizá-lo publicamente, confira as configurações do pacote em **GitHub → Packages → Package settings** e defina a visibilidade como **Public**.
 
