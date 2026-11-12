@@ -57,6 +57,40 @@ describe("CentralMacatuba", () => {
     expect(url.searchParams.has("end")).toBe(false);
   });
 
+  it("exposes successful response headers without changing request's data-only return", async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: [1, 2] }), {
+        status: 200,
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+          "X-Page": "2",
+          "X-Per-Page": "5",
+          "X-Total-Count": "12",
+          "X-Total-Pages": "3",
+          "X-Has-Next-Page": "true",
+          "X-Has-Previous-Page": "true",
+        },
+      }),
+    );
+    const client = new CentralMacatuba({ fetch: fetcher });
+    const response = await client.requestWithMetadata("/api/jornal/verificar", {
+      page: 2,
+      limit: 5,
+    });
+
+    expect(response.data).toEqual({ data: [1, 2] });
+    expect(response.status).toBe(200);
+    expect(response.url).toBe(
+      "https://publica.api.centralmacatuba.qzz.io/api/jornal/verificar?page=2&limit=5",
+    );
+    expect(response.headers.get("x-page")).toBe("2");
+    expect(response.headers.get("x-per-page")).toBe("5");
+    expect(response.headers.get("x-total-count")).toBe("12");
+    expect(response.headers.get("x-total-pages")).toBe("3");
+    expect(response.headers.get("x-has-next-page")).toBe("true");
+    expect(response.headers.get("x-has-previous-page")).toBe("true");
+  });
+
   it("rejects paths outside the public allowlist", async () => {
     const fetcher = vi.fn();
     const client = new CentralMacatuba({ fetch: fetcher });
