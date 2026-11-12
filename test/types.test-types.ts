@@ -23,7 +23,7 @@ type JornalFilterIsRestricted = Assert<
 >;
 
 type MapaQuery = EndpointQuery<"/api/mapa/pesquisar">;
-type MapaSearchTermIsRequired = Assert<IsRequired<MapaQuery, "q">>;
+type MapaSearchTermIsOptional = Assert<Equal<IsRequired<MapaQuery, "q">, false>>;
 
 type RedirectQuery = EndpointQuery<"/api/redicionador/verificar">;
 type RedirectUrlIsRequired = Assert<IsRequired<RedirectQuery, "url">>;
@@ -73,7 +73,7 @@ function checkResourceTypes(api: import("../src/index.js").CentralMacatubaSDK) {
   // Required query arguments must also be enforced on the public resource methods.
   // @ts-expect-error jornal search requires a query
   api.jornal.pesquisar();
-  // @ts-expect-error mapa search requires q
+  // The latest OpenAPI contract makes q optional for map search.
   api.mapa.pesquisar({});
   // @ts-expect-error redirect verification requires url
   api.redicionador.verificar({});
