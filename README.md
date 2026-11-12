@@ -86,20 +86,20 @@ const api = new CentralMacatubaSDK({
 - As respostas JSON são retornadas como objetos ou arrays tipados; arquivos PDF/PNG são retornados como `Blob`.
 - `timeoutMs: 0` desativa o timeout.
 
-## Cookies e SOS
+## Autorização SOS
 
-O endpoint SOS consulta o cookie `centralmacatuba_sos-permissao`. Em navegadores, o SDK não tenta ler nem definir esse cookie: ele deixa o navegador gerenciá-lo.
-
-Para uma chamada entre origens que precise enviar o cookie, configure `credentials: "include"` no cliente ou somente na chamada:
+O endpoint SOS recebe a preferência de notificação pelo cabeçalho `X-CM-SOS-PERMISSION`, não por cookie. Envie exatamente `granted` quando o usuário tiver autorizado as notificações; valores ausentes ou diferentes são interpretados como `false`.
 
 ```ts
-const api = new CentralMacatubaSDK({ credentials: "include" });
-const resultado = await api.sos.listarAlertas();
+const api = new CentralMacatubaSDK();
+
+const resultado = await api.sos.listarAlertas(
+  undefined,
+  { headers: { "X-CM-SOS-PERMISSION": "granted" } },
+);
 ```
 
-O gateway precisa encaminhar o cookie recebido ao endpoint e, para chamadas cross-origin, responder com CORS compatível com credenciais (origem explícita e `Access-Control-Allow-Credentials: true`). O cookie também precisa ter atributos compatíveis com o contexto, incluindo `SameSite=None; Secure` quando a chamada for realmente cross-site. Essas políticas do navegador não podem ser contornadas pelo SDK.
-
-Em Node.js, Fetch não mantém automaticamente um cookie jar entre chamadas. Para sessões persistentes, forneça uma implementação `fetch` com gerenciamento de cookies adequado ao seu ambiente.
+O cabeçalho também pode ser definido nas opções padrão do cliente. A SDK não solicita nem presume consentimento: a aplicação deve enviar `granted` somente após obter a autorização do usuário.
 
 ## Recursos
 
