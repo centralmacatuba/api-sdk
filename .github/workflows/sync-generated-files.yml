@@ -56,7 +56,7 @@ jobs:
           run_install: false
 
       - name: Install dependencies
-        if: inputs.scope == 'code' || inputs.scope == 'all'
+        if: github.event_name == 'push' || inputs.scope == 'code' || inputs.scope == 'all'
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Generate selected files and push
