@@ -65,3 +65,28 @@ for resolution in NodeNext Node16; do
 done
 
 echo "Consumo ESM, CommonJS, NodeNext e Node16 validado."
+
+# Browser-target ESM bundle smoke test.
+BROWSER_DIR="$TEMP_DIR/browser"
+mkdir -p "$BROWSER_DIR"
+pnpm exec tsup --config tsup.browser.config.ts --out-dir "$BROWSER_DIR"
+printf '{"type":"module"}\n' > "$BROWSER_DIR/package.json"
+
+node --input-type=module - "$BROWSER_DIR/index.js" <<'JS'
+import { pathToFileURL } from "node:url";
+
+globalThis.fetch = async () => new Response(
+  JSON.stringify({ status: "ok", service: "Central Macatuba - API Pública", env: "browser-test" }),
+  { headers: { "content-type": "application/json" } },
+);
+
+const { CentralMacatubaSDK } = await import(pathToFileURL(process.argv[2]).href);
+const api = new CentralMacatubaSDK({ baseUrl: "https://example.test" });
+const result = await api.health.verificar();
+
+if (result.status !== "ok" || result.env !== "browser-test") {
+  throw new Error("O bundle ESM direcionado a navegadores não conseguiu executar uma requisição Fetch.");
+}
+JS
+
+echo "Bundle ESM direcionado a navegadores validado."
