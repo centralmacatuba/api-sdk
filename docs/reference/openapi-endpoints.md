@@ -822,7 +822,7 @@ Lista alertas SOS.
 
 ### Resposta de sucesso (HTTP 200)
 
-Lista alertas SOS e informa se o cliente declarou a preferência de notificação por meio do header X-CM-SOS-PERMISSION. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page.
+Lista alertas SOS e informa se o cliente declarou a preferência de notificação por meio do cabeçalho `X-CM-SOS-PERMISSION`. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page.
 
 ### Respostas adicionais
 
