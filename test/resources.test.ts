@@ -21,6 +21,7 @@ const routes: Array<[string, (api: CentralMacatubaSDK) => Promise<unknown>]> = [
   ["/api/paginas/verificar", (api) => api.paginas.verificar()],
   ["/api/redicionador/verificar", (api) => api.redicionador.verificar({ url: "slug" })],
   ["/api/servicos/verificar", (api) => api.servicos.verificar()],
+  ["/api/servicos/pesquisar", (api) => api.servicos.pesquisar()],
   ["/api/servicos/cursos/pesquisar", (api) => api.servicos.cursos.pesquisar()],
   ["/api/servicos/cursos/verificar", (api) => api.servicos.cursos.verificar()],
   ["/api/servicos/docs/pesquisar", (api) => api.servicos.docs.pesquisar()],
@@ -45,6 +46,20 @@ describe("resource namespaces", () => {
     expect(fetcher).toHaveBeenCalledOnce();
     expect(new URL(String(fetcher.mock.calls[0][0])).pathname).toBe(path);
     expect((fetcher.mock.calls[0][1] as RequestInit).method).toBe("GET");
+  });
+
+  it("forwards the SOS permission header through request options", async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response('{"alertas":[]}', { headers: { "content-type": "application/json" } }),
+    );
+    const api = new CentralMacatubaSDK({ baseUrl: "https://example.test", fetch: fetcher });
+
+    await api.sos.listarAlertas(undefined, {
+      headers: { "X-CM-SOS-PERMISSION": "granted" },
+    });
+
+    const [, init] = fetcher.mock.calls[0] as [string, RequestInit];
+    expect(new Headers(init.headers).get("x-cm-sos-permission")).toBe("granted");
   });
 
   it("forwards query and options through a standalone nested resource", async () => {
