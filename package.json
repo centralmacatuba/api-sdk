@@ -59,6 +59,7 @@
     "test:watch": "vitest",
     "prepack": "pnpm build",
     "test:integration": "vitest run test/integration.test.ts",
+    "test:browser": "node test/browser-consumer.mjs",
     "docs:dev": "pnpm docs:generate && vitepress dev docs",
     "docs:build": "pnpm docs:generate && vitepress build docs",
     "docs:preview": "pnpm docs:generate && vitepress preview docs",
