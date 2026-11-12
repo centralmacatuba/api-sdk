@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const playwrightModule = process.env.PLAYWRIGHT_MODULE;
@@ -15,26 +13,12 @@ if (!playwrightModule) {
 
 const { chromium } = await import(pathToFileURL(resolve(playwrightModule)).href);
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const tempDir = await mkdtemp(join(tmpdir(), "centralmacatuba-browser-"));
-const bundleDir = join(tempDir, "bundle");
-const bundlePath = join(bundleDir, "index.js");
+const bundlePath = join(root, "dist", "index.js");
 
 let browser;
 let server;
 
 try {
-  const build = spawnSync(
-    join(root, "node_modules", ".bin", "tsup"),
-    ["--config", join(root, "tsup.browser.config.ts"), "--out-dir", bundleDir],
-    { cwd: root, encoding: "utf8" },
-  );
-
-  if (build.status !== 0) {
-    throw new Error(
-      `Falha ao gerar o bundle para navegador.\n${build.stdout}\n${build.stderr}`,
-    );
-  }
-
   await readFile(bundlePath);
 
   const html = `<!doctype html>
@@ -97,7 +81,14 @@ try {
   </body>
 </html>`;
 
-  const seen = { preflight: 0, preflightHeaders: null, sosHeader: null, searchQuery: null, calendarQuery: null, requests: [] };
+  const seen = {
+    preflight: 0,
+    preflightHeaders: null,
+    sosHeader: null,
+    searchQuery: null,
+    calendarFormats: [],
+    requests: [],
+  };
   server = createServer(async (request, response) => {
     if (request.url === "/") {
       response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
@@ -193,7 +184,6 @@ try {
       body = { success: true, alertas: [], notificacaoAceita: true };
     } else if (url.pathname === "/api/calendario/gerar") {
       const formato = url.searchParams.get("formato");
-      seen.calendarFormats ??= [];
       seen.calendarFormats.push(formato);
       if (formato === "pdf") {
         headers = { ...corsHeaders, "content-type": "application/pdf" };
@@ -264,5 +254,4 @@ try {
       server.close((error) => (error ? reject(error) : resolveClose())),
     );
   }
-  await rm(tempDir, { recursive: true, force: true });
 }
