@@ -28,6 +28,7 @@ export default {
         { text: "Uso da SDK", items: [
           { text: "Configuração", link: "/guide/configuration" },
           { text: "Cliente e requisições", link: "/guide/client" },
+          { text: "Paginação", link: "/guide/pagination" },
           { text: "Erros e respostas", link: "/guide/errors" },
           { text: "Cancelamento e timeout", link: "/guide/cancellation-timeout" },
           { text: "Cookies e SOS", link: "/guide/cookies-sos" },
