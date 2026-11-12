@@ -128,7 +128,7 @@ Pesquisa informações públicas.
 
 ### Resposta de sucesso (HTTP 200)
 
-Lista informações que correspondem ao parâmetro `p` e ao filtro solicitado. Quando `p` não é informado, o filtro pode retornar todos os registros.
+Lista informações que correspondem ao parâmetro `p` e ao filtro solicitado. Sem `p`, o filtro pode retornar todos os registros. Os cabeçalhos `X-Page`, `X-Per-Page`, `X-Total-Count`, `X-Total-Pages`, `X-Has-Next-Page` e `X-Has-Previous-Page` informam a paginação.
 
 ### Respostas adicionais
 
@@ -145,7 +145,7 @@ Lista informações que correspondem ao parâmetro `p` e ao filtro solicitado. Q
 
 **verificar**
 
-Com `funcao=tudo`, lista os registros. Com `funcao=uma`, exige `id` ou `nome`; se ambos faltarem, a implementação retorna um objeto de erro com HTTP 200.
+Consulta informações. Com `funcao=tudo`, retorna uma lista paginada; com `funcao=uma`, exige `id` ou `nome` e retorna um registro. Parâmetros inválidos retornam HTTP 400; registros inexistentes retornam HTTP 404.
 
 ### Parâmetros de consulta
 
@@ -157,7 +157,7 @@ Com `funcao=tudo`, lista os registros. Com `funcao=uma`, exige `id` ou `nome`; s
 
 ### Resposta de sucesso (HTTP 200)
 
-Com `funcao=tudo`, retorna uma lista. Com `funcao=uma`, retorna um registro ou null. Parâmetros ou valores de função inválidos podem resultar em um objeto de erro com HTTP 200.
+Com `funcao=tudo`, retorna uma lista; com `funcao=uma`, retorna um registro ou `null`. Parâmetros ou valores de função inválidos podem resultar em um objeto de erro com HTTP 200. Nas listagens, os cabeçalhos `X-Page`, `X-Per-Page`, `X-Total-Count`, `X-Total-Pages`, `X-Has-Next-Page` e `X-Has-Previous-Page` informam a paginação.
 
 ### Respostas adicionais
 
@@ -174,7 +174,7 @@ Com `funcao=tudo`, retorna uma lista. Com `funcao=uma`, retorna um registro ou n
 
 **pesquisar**
 
-O parâmetro `q` deve conter um termo não vazio para obter resultados. Quando omitido ou vazio, a implementação atual retorna um objeto de erro com HTTP 200. O filtro aceita os valores `criador`, `titulo`, `subtitulo` e `conteudo`; outros valores acionam a pesquisa em todos os campos.
+Pesquisa notícias. O parâmetro `q` é obrigatório e não pode estar vazio. O parâmetro `filtro` aceita `criador`, `titulo`, `subtitulo`, `conteudo` ou `tudo`. Os parâmetros `page` e `limit` controlam a página atual.
 
 ### Parâmetros de consulta
 
@@ -185,7 +185,7 @@ O parâmetro `q` deve conter um termo não vazio para obter resultados. Quando o
 
 ### Resposta de sucesso (HTTP 200)
 
-Quando `q` não está vazio, retorna o envelope de resultados. Quando está vazio ou ausente, o PHP retorna um objeto de erro com HTTP 200.
+Retorna o envelope de resultados da pesquisa. A ausência de `q` ou seu valor vazio resulta em HTTP 400. Os cabeçalhos de resposta informam a paginação.
 
 ### Respostas adicionais
 
@@ -202,7 +202,7 @@ Quando `q` não está vazio, retorna o envelope de resultados. Quando está vazi
 
 **verificar**
 
-Com `funcao=uma`, consulta uma notícia e usa `id` como inteiro positivo. Outros valores de `funcao` seguem o caminho de listagem de todas as notícias.
+Com `funcao=todas`, retorna notícias paginadas; com `funcao=uma` e `id` positivo, retorna uma notícia. Parâmetros inválidos retornam HTTP 400; notícias inexistentes retornam HTTP 404.
 
 ### Parâmetros de consulta
 
@@ -213,7 +213,7 @@ Com `funcao=uma`, consulta uma notícia e usa `id` como inteiro positivo. Outros
 
 ### Resposta de sucesso (HTTP 200)
 
-Com `funcao=todas`, retorna a lista de notícias. Com `funcao=uma` e `id` positivo, retorna uma notícia. O formato dos campos depende dos registros.
+Com `funcao=todas`, lista as notícias; com `funcao=uma` e `id` positivo, retorna uma notícia. O formato dos campos depende dos registros. Nas listagens, os cabeçalhos `X-Page`, `X-Per-Page`, `X-Total-Count`, `X-Total-Pages`, `X-Has-Next-Page` e `X-Has-Previous-Page` informam a paginação.
 
 ### Respostas adicionais
 
@@ -285,7 +285,7 @@ Retorna a lista de links, um link individual ou as solicitações pendentes, con
 
 **pesquisar**
 
-O parâmetro `q` deve conter um termo não vazio para obter resultados. Quando omitido ou vazio, a implementação atual retorna um objeto de erro com HTTP 200. O filtro aceita os valores `nome`, `tipo`, `criador` e `descricao`; outros valores acionam a pesquisa em todos os campos.
+Pesquisa pontos do mapa por termo e campo ou consulta diretamente a área visível. Aceita uma bounding box opcional, com os quatro valores `min_lat`, `min_lng`, `max_lat` e `max_lng`, enviada por completo para limitar os resultados. Sem `q`, a bounding box é obrigatória. O zoom deve estar entre 0 e 22. Quando `limit` não é informado, o limite padrão da página varia conforme o zoom: 20 (zoom de 0 a 8), 50 (de 9 a 13) ou 100 (de 14 a 22).
 
 ### Parâmetros de consulta
 
@@ -296,7 +296,7 @@ O parâmetro `q` deve conter um termo não vazio para obter resultados. Quando o
 
 ### Resposta de sucesso (HTTP 200)
 
-Quando `q` não está vazio, retorna o envelope de resultados. Quando está vazio ou ausente, o PHP retorna um objeto de erro com HTTP 200.
+Retorna os pontos encontrados e o total de registros que correspondem à pesquisa e à bounding box, quando fornecida. Os cabeçalhos `X-Page`, `X-Per-Page`, `X-Total-Count`, `X-Total-Pages`, `X-Has-Next-Page` e `X-Has-Previous-Page` informam a paginação.
 
 ### Respostas adicionais
 
@@ -398,7 +398,7 @@ funcao=tudo retorna uma lista; funcao=uma com id válido retorna um registro. Er
 
 **pesquisar**
 
-Pesquisa páginas públicas.
+Pesquisa páginas por título ou slug. O parâmetro `q` é obrigatório e não pode estar vazio. Os parâmetros `page` e `limit` controlam a paginação.
 
 ### Parâmetros de consulta
 
@@ -408,7 +408,7 @@ Pesquisa páginas públicas.
 
 ### Resposta de sucesso (HTTP 200)
 
-Pesquisa páginas. Sem o parâmetro `q`, o PHP retorna `status=false`; com `q`, retorna o total e os resultados.
+Retorna o total de correspondências e os resultados da página solicitada. Os cabeçalhos de resposta também informam os detalhes da paginação.
 
 ### Respostas adicionais
 
@@ -693,7 +693,7 @@ O parâmetro `tipo` é obrigatório. O parâmetro `filtro` seleciona um campo de
 
 ### Resposta de sucesso (HTTP 200)
 
-Retorna os registros ativos que correspondem à busca. Os campos pesquisados dependem do tipo de streaming e do filtro. Com `filtro=tudo`, são usadas as colunas pesquisáveis disponíveis para aquele tipo.
+Retorna os registros ativos que correspondem à busca. Os campos pesquisados dependem do tipo de streaming e do filtro. Com `filtro=tudo`, são usadas as colunas pesquisáveis existentes para aquele tipo. Os cabeçalhos `X-Page`, `X-Per-Page`, `X-Total-Count`, `X-Total-Pages`, `X-Has-Next-Page` e `X-Has-Previous-Page` informam a paginação.
 
 ### Respostas adicionais
 
@@ -710,7 +710,7 @@ Retorna os registros ativos que correspondem à busca. Os campos pesquisados dep
 
 **streaming / verificar**
 
-O parâmetro `tipo` é obrigatório. Com `funcao=uma` e `id`, consulta um item; nos demais casos, a implementação lista os itens ativos.
+Lista itens ativos paginados ou consulta um item por ID. Os tipos suportados são `radio`, `tv`, `vod`, `camera` e `podcast`.
 
 ### Parâmetros de consulta
 
@@ -722,7 +722,7 @@ O parâmetro `tipo` é obrigatório. Com `funcao=uma` e `id`, consulta um item; 
 
 ### Resposta de sucesso (HTTP 200)
 
-Lista itens ativos ou consulta um item por ID. Tipos suportados: radio, tv, vod, camera e podcast.
+Lista itens ativos ou consulta um item por ID. Os tipos suportados são `radio`, `tv`, `vod`, `camera` e `podcast`. Nas listagens, os cabeçalhos `X-Page`, `X-Per-Page`, `X-Total-Count`, `X-Total-Pages`, `X-Has-Next-Page` e `X-Has-Previous-Page` informam a paginação.
 
 ### Respostas adicionais
 
