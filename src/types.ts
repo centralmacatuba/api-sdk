@@ -36,6 +36,19 @@ export interface ApiErrorResponse {
 
 export type ApiResponse<T> = T | Blob;
 
+/** HTTP metadata retained alongside a parsed public API response. */
+export interface ApiResponseMetadata {
+  status: number;
+  statusText: string;
+  url: string;
+  headers: Headers;
+}
+
+/** Parsed response data together with the successful HTTP response metadata. */
+export interface ApiResponseWithMetadata<T> extends ApiResponseMetadata {
+  data: T;
+}
+
 type GetOperation<P extends keyof paths> =
   paths[P] extends { get: infer Operation } ? Operation : never;
 
@@ -69,6 +82,8 @@ export type EndpointResponse<P extends keyof paths> =
   P extends "/api/calendario/gerar"
     ? JsonContent<SuccessResponse<P>> | Blob
     : JsonContent<SuccessResponse<P>>;
+
+export type EndpointResponseWithMetadata<P extends keyof paths> = ApiResponseWithMetadata<EndpointResponse<P>>;
 
 export type EndpointRequestArgs<P extends keyof paths> =
   [EndpointQuery<P>] extends [never]
