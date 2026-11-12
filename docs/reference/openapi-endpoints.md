@@ -814,9 +814,15 @@ Lista alertas SOS.
 | `page` | Não | integer | Número da página (base 1). Padrão: 1. |
 | `limit` | Não | integer | Quantidade máxima de registros por página. Padrão: 20; máximo: 100. |
 
+### Cabeçalhos da requisição
+
+| Cabeçalho | Obrigatório | Tipo | Descrição |
+|---|---:|---|---|
+| `X-CM-SOS-PERMISSION` | Não | "granted" | Indica a preferência de notificação SOS do cliente. Envie exatamente `granted` para que `notificacaoAceita` seja true; valores ausentes ou diferentes resultam em false. |
+
 ### Resposta de sucesso (HTTP 200)
 
-Lista alertas SOS e informa se o cliente declarou a preferência de notificação por meio do header X-CM-SOS-PERMISSION. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page.
+Lista alertas SOS e informa se o cliente declarou a preferência de notificação por meio do cabeçalho `X-CM-SOS-PERMISSION`. A paginação é informada nos cabeçalhos X-Page, X-Per-Page, X-Total-Count, X-Total-Pages, X-Has-Next-Page e X-Has-Previous-Page.
 
 ### Respostas adicionais
 
@@ -879,6 +885,37 @@ Gateway disponível.
 **Pesquisar serviços do catálogo**
 
 Lista e pesquisa o catálogo público de serviços. page começa em 1 e limit aceita de 1 a 100 (padrão 20).
+
+### Parâmetros de consulta
+
+| Parâmetro | Obrigatório | Tipo | Descrição |
+|---|---:|---|---|
+| `q` | Não | string | Termo opcional de pesquisa. |
+| `campo` | Não | "tudo" / "nome" / "titulo" / "descricao_curta" / "descricao_longa" | Campo de pesquisa; padrão tudo. |
+| `page` | Não | integer | — |
+| `limit` | Não | integer | — |
+
+### Resposta de sucesso (HTTP 200)
+
+Lista paginada de serviços.
+
+### Respostas adicionais
+
+| HTTP | Descrição |
+|---:|---|
+| 400 | Caminho inválido detectado pelo gateway ou parâmetro inválido conforme a validação específica do endpoint. |
+| 403 | Domínio ou acesso não autorizado pelo gateway. |
+| 404 | Rota ou recurso não encontrado. |
+| 405 | Método não permitido para a operação de consulta. O endpoint aceita GET; o gateway trata HEAD separadamente, sem encaminhar a consulta. |
+| 422 | Termo de pesquisa excede 200 caracteres. |
+| 500 | Erro interno no endpoint PHP ou no serviço de dados. |
+| 502 | Falha do gateway ao encaminhar a requisição ao serviço privado. |
+
+## GET `/api/servicos/pesquisar`
+
+**Pesquisar serviços do catálogo**
+
+Lista e pesquisa o catálogo público de serviços. `page` começa em 1 e `limit` aceita de 1 a 100 (padrão 20).
 
 ### Parâmetros de consulta
 
