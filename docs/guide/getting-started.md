@@ -1,6 +1,6 @@
 # Primeiros passos
 
-Depois de instalar o pacote, crie uma instância de `CentralMacatubaSDK`.
+Após instalar o pacote, crie uma instância de `CentralMacatubaSDK`.
 
 ```js
 import { CentralMacatubaSDK } from "@centralmacatuba/api";
