@@ -1,6 +1,6 @@
 # Autorização SOS
 
-O endpoint SOS recebe a preferência de notificação pelo cabeçalho `X-CM-SOS-PERMISSION`; não utiliza o cookie `centralmacatuba_sos-permissao`.
+O endpoint SOS recebe a preferência de notificação pelo cabeçalho `X-CM-SOS-PERMISSION`; a autorização não é enviada por cookie.
 
 Envie exatamente `granted` quando o usuário tiver autorizado as notificações. Se o cabeçalho estiver ausente ou contiver outro valor, a API considera `notificacaoAceita` como `false`.
 
