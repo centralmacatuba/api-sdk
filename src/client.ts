@@ -125,7 +125,9 @@ function normalizeBaseUrl(value: string): string {
     url.username ||
     url.password ||
     url.search ||
-    url.hash
+    url.hash ||
+    url.href.includes("?") ||
+    url.href.includes("#")
   ) {
     throw new CentralMacatubaError(
       "A URL base deve usar HTTP(S) e não pode conter credenciais, query ou fragmento.",
