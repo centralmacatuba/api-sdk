@@ -97,7 +97,7 @@ const api = new CentralMacatubaSDK({ credentials: "include" });
 const resultado = await api.sos.listarAlertas();
 ```
 
-O gateway precisa encaminhar o cookie recebido ao endpoint e, para chamadas cross-origin, responder com CORS compatível com credenciais (origem explícita e `Access-Control-Allow-Credentials: true`). O cookie também precisa ter atributos compatíveis com o contexto, incluindo `SameSite=None; Secure` quando for realmente cross-site. O SDK não consegue contornar essas políticas do navegador.
+O gateway precisa encaminhar o cookie recebido ao endpoint e, para chamadas cross-origin, responder com CORS compatível com credenciais (origem explícita e `Access-Control-Allow-Credentials: true`). O cookie também precisa ter atributos compatíveis com o contexto, incluindo `SameSite=None; Secure` quando a chamada for realmente cross-site. Essas políticas do navegador não podem ser contornadas pelo SDK.
 
 Em Node.js, Fetch não mantém automaticamente um cookie jar entre chamadas. Para sessões persistentes, forneça uma implementação `fetch` com gerenciamento de cookies adequado ao seu ambiente.
 
@@ -155,7 +155,7 @@ Para validar a compilação:
 pnpm docs:build
 ```
 
-Para executar o teste de integração opcional do health check contra o gateway real:
+Para executar a integração opcional com o health check do gateway real:
 
 ```bash
 CM_API_INTEGRATION=1 pnpm test:integration
@@ -163,11 +163,11 @@ CM_API_INTEGRATION=1 pnpm test:integration
 
 Esse teste não é executado na suíte padrão para evitar que indisponibilidades externas tornem o CI instável. Os testes unitários e os testes de tipos não dependem da API em produção.
 
-O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública. Depois de alterar esse contrato, execute `pnpm generate:types` e revise/registre `src/generated/schema.d.ts`. Para sincronizar os arquivos gerados pelo GitHub Actions, execute o workflow manual **Sync generated files** na branch de trabalho e selecione:
+O contrato OpenAPI versionado em `openapi/openapi.json` descreve a API pública. Após alterar esse contrato, execute `pnpm generate:types` e revise/registre `src/generated/schema.d.ts`. Para sincronizar os arquivos gerados pelo GitHub Actions, execute o workflow manual **Sync generated files** na branch de trabalho e selecione:
 
-- `code`: sincroniza os tipos TypeScript gerados;
-- `docs`: sincroniza a referência de endpoints;
-- `all`: sincroniza os dois conjuntos de arquivos.
+- A opção `code` sincroniza os tipos TypeScript gerados.
+- A opção `docs` sincroniza a referência de endpoints.
+- A opção `all` sincroniza os dois conjuntos de arquivos.
 
 ## Releases
 
