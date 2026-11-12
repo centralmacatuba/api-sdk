@@ -3,6 +3,7 @@ import type {
   CentralMacatubaOptions,
   EndpointRequestArgs,
   EndpointResponse,
+  EndpointResponseWithMetadata,
   QueryValue,
   RequestOptions,
 } from "./types.js";
@@ -184,6 +185,20 @@ export class CentralMacatuba {
     endpoint: P,
     ...args: EndpointRequestArgs<P>
   ): Promise<EndpointResponse<P>> {
+    const response = await this.requestWithMetadata(endpoint, ...args);
+    return response.data;
+  }
+
+  /**
+   * Sends an allowlisted GET request and returns parsed data together with
+   * successful HTTP status, URL and response headers. Use this method when
+   * pagination or caching metadata is needed; use {@link request} for the
+   * backward-compatible data-only result.
+   */
+  async requestWithMetadata<P extends PublicEndpoint>(
+    endpoint: P,
+    ...args: EndpointRequestArgs<P>
+  ): Promise<EndpointResponseWithMetadata<P>> {
     if (!PUBLIC_ENDPOINT_SET.has(endpoint)) {
       throw new CentralMacatubaError("Endpoint não permitido. Use somente rotas da allowlist pública.");
     }
@@ -276,7 +291,13 @@ export class CentralMacatuba {
         }
       }
 
-      return body as EndpointResponse<P>;
+      return {
+        data: body as EndpointResponse<P>,
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url || url,
+        headers: new Headers(response.headers),
+      };
     } catch (error) {
       if (error instanceof CentralMacatubaError) throw error;
       if (timedOut) {
